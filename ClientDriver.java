@@ -6,7 +6,8 @@ public class ClientDriver
 	{
 		try
 		{
-			Client c = new Client();	
+			Client c = new Client();
+			c.sendTransactionRequest();
 		}
 		catch(IOException x)
 		{
