@@ -51,6 +51,7 @@ public class Client
 
 	// DO NOT RUN AS A THREAD!!!
 	// If the client tries to send a transaction prior to all nodes on the network knowing of our existence, then the transaction will fail
+	// If this function runs as a thread, thats possible if the anchorNode takes a long time to respond
 	private void initialConnect() throws IOException
 	{
 		// Reach out to the anchor node. anchor node will respond with 1 or 2 IP/port pairs.
@@ -70,7 +71,7 @@ public class Client
 
 			// Read in the nodes AnchorNode decided was best for this client to call it's neighbors
 			// DESIGN DECISION: what format are these nodes coming in??
-			// If as a Seriailized object, then deserialize and pull the objects/memebers
+			// If as a Seriailized object, then deserialize and pull the objects members
 			// If as a formatted string "127.0.0.1:5000" then just split at ":"
 
 			// Assume formatted string
@@ -86,12 +87,12 @@ public class Client
 			anchorSocket.close();
 
 			// Introduce yourself to your new neighbors!
-		for(Socket neighbhor : neighborServerSocketList)
-		{
-			// Send an intro message
-			// TODO: This message will contain all of this peers info that other peers need to know, public key and remaining votes
-			// TODO: Servers will handle this differently than receiving a transactionRequest, I think
-		}
+			for(Socket neighbhor : neighborServerSocketList)
+			{
+				// Send an intro message
+				// TODO: This message will contain all of this peers info that other peers need to know, public key and remaining votes
+				// TODO: Servers will handle this differently than receiving a transactionRequest, I think
+			}
 
 			
 		}
@@ -99,12 +100,6 @@ public class Client
 		{
 			ex.printStackTrace();
 		}
-		finally
-		{
-			anchorSocket.close();
-		}
-		
-		
 
 	}
 
