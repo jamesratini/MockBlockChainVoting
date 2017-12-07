@@ -49,19 +49,62 @@ public class Client
 		
 	}
 
+	// DO NOT RUN AS A THREAD!!!
+	// If the client tries to send a transaction prior to all nodes on the network knowing of our existence, then the transaction will fail
 	private void initialConnect() throws IOException
 	{
 		// Reach out to the anchor node. anchor node will respond with 1 or 2 IP/port pairs.
+		// Add those pairs to a list to open as sockets later
 		Socket anchorSocket = new Socket(Globals.anchorIP, Globals.anchorPort);
-		PrintWriter output = new PrintWriter(anchorSocket.getOutputStream(), true);
-		output.println("Initial Connect");
-		output.println(8082);
+		try
+		{
+			
+			PrintWriter output = new PrintWriter(anchorSocket.getOutputStream(), true);
+			output.println("Initial Connect");
+			output.println(8082);
 
-		// Read welcome message from Anchor
+			// Read welcome message from Anchor
+			BufferedReader in = new BufferedReader(new InputStreamReader(anchorSocket.getInputStream()));
+			String clientMessage = in.readLine();
+			System.out.println(clientMessage); // Should read "Hello, From Anchor Node"
 
-		// Read neighbor nodes
-		neighborServerSocketList.add(new Socket(Globals.anchorIP, Globals.anchorPort));
-		neighborServerSocketList.add(new Socket(Globals.anchorIP, Globals.anchorPort));
+			// Read in the nodes AnchorNode decided was best for this client to call it's neighbors
+			// DESIGN DECISION: what format are these nodes coming in??
+			// If as a Seriailized object, then deserialize and pull the objects/memebers
+			// If as a formatted string "127.0.0.1:5000" then just split at ":"
+
+			// Assume formatted string
+
+			// readLine will block until data is present in the buffer
+			String[] neighborNode = in.readLine().split(":");
+			neighborServerSocketList.add(new Socket(neighborNode[0], Integer.parseInt(neighborNode[1])));
+
+			neighborNode = in.readLine().split(":");
+			neighborServerSocketList.add(new Socket(neighborNode[0], Integer.parseInt(neighborNode[1])));
+
+			// Close connection with AnchorNode
+			anchorSocket.close();
+
+			// Introduce yourself to your new neighbors!
+		for(Socket neighbhor : neighborServerSocketList)
+		{
+			// Send an intro message
+			// TODO: This message will contain all of this peers info that other peers need to know, public key and remaining votes
+			// TODO: Servers will handle this differently than receiving a transactionRequest, I think
+		}
+
+			
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		finally
+		{
+			anchorSocket.close();
+		}
+		
+		
 
 	}
 
