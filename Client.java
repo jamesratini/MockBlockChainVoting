@@ -79,17 +79,17 @@ public class Client
 			// Assume formatted string
 
 			// readLine will block until data is present in the buffer
-			String neighborNode = in.readLine();
-			neighborServerList.add(neighborNode);
-
-			neighborNode = in.readLine();
-			neighborServerList.add(neighborNode);
+			String neighborNodes = in.readLine();
+			String[] neighbors = neighborNodes.split("/");
+			System.out.println(neighbors);
+			neighborServerList.add(neighbors[0]);
+			neighborServerList.add(neighbors[1]);
 
 			// Close connection with AnchorNode
 			anchorSocket.close();
 
 			// Introduce yourself to your new neighbors!
-			neighborIntroduction();
+			//neighborIntroduction();
 		}
 		catch(Exception ex)
 		{
