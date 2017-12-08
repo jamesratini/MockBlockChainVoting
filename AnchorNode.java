@@ -41,9 +41,15 @@ public class AnchorNode
 					int clientPort = Integer.parseInt(in.readLine());
 					System.out.println(clientMessage);
 					
-					ArrayList<Node> bestNeighbors = findBestNeighbors();
+					ArrayList<String> bestNeighbors = findBestNeighbors();
+					String returnString = "";
+					for(String s : bestNeighbors)
+					{
+						returnString = returnString + s + "/";
+					}
+					
 					PrintWriter output = new PrintWriter(initialConnectNode.getOutputStream(), true);
-					output.println("Hello, From Anchor Node");
+					output.println(returnString);
 
 					allNodes.add(new Node(initialConnectNode.getInetAddress().getHostAddress(), clientPort));
 
@@ -65,10 +71,10 @@ public class AnchorNode
 		}
 	}
 
-	private ArrayList<Node> findBestNeighbors()
+	private ArrayList<String> findBestNeighbors()
 	{
 		// iterate through all Nodes, return 2 with least numConnections
-		ArrayList<Node> bestList = new ArrayList<Node>();
+		ArrayList<String> bestList = new ArrayList<String>();
 		//we have to set the nodes to null because they need important parameters 
 		Node smallest = null;
 		Node secondSmallest = null;
@@ -105,8 +111,9 @@ public class AnchorNode
 				}
 			}
 		}
-		bestList.add(smallest);
-		bestList.add(secondSmallest);
+		bestList.add(smallest.getIP() + ':' + smallest.getPort());
+		bestList.add(secondSmallest.getIP() + ':' + secondSmallest.getPort());
+		
 		return bestList;
 		
 	}
