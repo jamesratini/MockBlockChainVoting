@@ -6,8 +6,8 @@ public class Client
 {
 
 	private static ArrayList<String> neighborPeerList; // Contains peerIds
-	//private static ArrayList<String> serverList; // Contains IPAddresses
-	private static ArrayList<Socket> neighborServerSocketList; // Contains the 
+	private static ArrayList<String> serverList; // Contains IPAddress 
+	private static ArrayList<String> neighborServerList; // Contains the IP/Port pair of neighbors
 
 
 	public Client() throws IOException
@@ -21,7 +21,7 @@ public class Client
 			// temp connect - sockets cant be initialized until communication is meant to happen
 		// NOTE - on init the client must first connect to an "anchor" node, one that is always on, the anchor will response with the IP and port of 1 or 2 other peers. These will be our neighbors.
 		neighborPeerList = new ArrayList<String>(Arrays.asList("John", "James"));
-		neighborServerSocketList = new ArrayList<Socket>();
+		neighborServerList = new ArrayList<String>();
 
 		initialConnect();
 
@@ -32,7 +32,7 @@ public class Client
 	{
 		// iterate through all serverSockets and attempt to connect and send the message
 		// TODO: Run in a thread
-		for(int i = 0; i < neighborServerSocketList.size(); i++)
+		/*for(int i = 0; i < neighborServerSocketList.size(); i++)
 		{
 			try
 			{
@@ -44,7 +44,7 @@ public class Client
 				neighborServerSocketList.get(i).close();
 			}
 			
-		} 
+		} */
 		
 		
 	}
@@ -77,22 +77,18 @@ public class Client
 			// Assume formatted string
 
 			// readLine will block until data is present in the buffer
-			String[] neighborNode = in.readLine().split(":");
-			neighborServerSocketList.add(new Socket(neighborNode[0], Integer.parseInt(neighborNode[1])));
+			String neighborNode = in.readLine();
+			neighborServerList.add(neighborNode);
 
-			neighborNode = in.readLine().split(":");
-			neighborServerSocketList.add(new Socket(neighborNode[0], Integer.parseInt(neighborNode[1])));
+			neighborNode = in.readLine();
+			neighborServerList.add(neighborNode);
 
 			// Close connection with AnchorNode
 			anchorSocket.close();
 
 			// Introduce yourself to your new neighbors!
-			for(Socket neighbhor : neighborServerSocketList)
-			{
-				// Send an intro message
-				// TODO: This message will contain all of this peers info that other peers need to know, public key and remaining votes
-				// TODO: Servers will handle this differently than receiving a transactionRequest, I think
-			}
+			neighborIntroduction();
+			
 
 			
 		}
@@ -101,6 +97,23 @@ public class Client
 			ex.printStackTrace();
 		}
 
+	}
+
+	private void neighborIntroduction() throws IOException
+	{
+		String[] splitNeighbor;
+		for(String neighbor : neighborServerList)
+		{
+			splitNeighbor = neighbor.split(":");
+			// Send an intro message
+			// TODO: This message will contain all of this peers info that other peers need to know, public key and remaining votes
+			// TODO: Servers will handle this differently than receiving a transactionRequest, I think
+
+			Socket connectingNeighbor = new Socket(splitNeighbor[0], Integer.parseInt(splitNeighbor[1]));
+
+
+
+		}
 	}
 
 }
