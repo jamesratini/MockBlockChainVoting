@@ -1,8 +1,6 @@
 import java.util.*;
 import java.io.*;
 import java.net.*;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 
 public class AnchorNode
 {
@@ -40,18 +38,8 @@ public class AnchorNode
 					// Only happens when new node runs initialConnect()
 					int clientPort = Integer.parseInt(in.readLine());
 					System.out.println(clientMessage);
+					addNode(initialConnectNode, clientPort);
 					
-					ArrayList<String> bestNeighbors = findBestNeighbors();
-					String returnString = "";
-					for(String s : bestNeighbors)
-					{
-						returnString = returnString + s + "/";
-					}
-					
-					PrintWriter output = new PrintWriter(initialConnectNode.getOutputStream(), true);
-					output.println(returnString);
-
-					allNodes.add(new Node(initialConnectNode.getInetAddress().getHostAddress(), clientPort));
 
 
 				}
@@ -71,6 +59,29 @@ public class AnchorNode
 		}
 	}
 
+	private void addNode(Socket initialConnectNode, int clientPort) throws IOException {
+		// TODO Auto-generated method stub
+		//if there are no nodes in the blockchain
+		if(allNodes.isEmpty())
+		{
+			allNodes.add(new Node(initialConnectNode.getInetAddress().getHostAddress(),clientPort));
+		}
+		else
+		{
+			ArrayList<String> bestNeighbors = findBestNeighbors();
+			String returnString = "";
+			for(String s : bestNeighbors)
+			{
+				returnString = returnString + s + "/";
+			}
+			PrintWriter output = new PrintWriter(initialConnectNode.getOutputStream(), true);
+			output.println(returnString);
+			allNodes.add(new Node(initialConnectNode.getInetAddress().getHostAddress(), clientPort));
+		}
+		
+		
+	}
+
 	private ArrayList<String> findBestNeighbors()
 	{
 		// iterate through all Nodes, return 2 with least numConnections
@@ -79,6 +90,7 @@ public class AnchorNode
 		Node smallest = null;
 		Node secondSmallest = null;
 		//step through all the nodes, checking for the smallest number of connections on nodes.
+		
 		for(Node n : allNodes )
 		{
 			if(smallest == null)
@@ -111,9 +123,15 @@ public class AnchorNode
 				}
 			}
 		}
-		bestList.add(smallest.getIP() + ':' + smallest.getPort());
-		bestList.add(secondSmallest.getIP() + ':' + secondSmallest.getPort());
 		
+		if(smallest != null)
+		{
+			bestList.add(smallest.getIP() + ':' + smallest.getPort());
+		}
+		if(secondSmallest != null)
+		{
+			bestList.add(secondSmallest.getIP() + ':' + secondSmallest.getPort());
+		}
 		return bestList;
 		
 	}
