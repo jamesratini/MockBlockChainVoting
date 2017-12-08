@@ -32,21 +32,23 @@ public class Client
 	{
 		// iterate through all serverSockets and attempt to connect and send the message
 		// TODO: Run in a thread
-		/*for(int i = 0; i < neighborServerSocketList.size(); i++)
+		for(int i = 0; i < neighborServerList.size(); i++)
 		{
+			String[] splitPair = neighborServerList.get(i).split(":");
+			Socket neighbor = new Socket(splitPair[0], Integer.parseInt(splitPair[1]));
 			try
 			{
-				PrintWriter output = new PrintWriter(neighborServerSocketList.get(i).getOutputStream(), true);
+				
+
+				PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
 				output.printf("Hello, %s", neighborPeerList.get(i));
 			}
 			finally
 			{
-				neighborServerSocketList.get(i).close();
+				neighbor.close();
 			}
 			
-		} */
-		
-		
+		} 	
 	}
 
 	// DO NOT RUN AS A THREAD!!!
@@ -88,9 +90,6 @@ public class Client
 
 			// Introduce yourself to your new neighbors!
 			neighborIntroduction();
-			
-
-			
 		}
 		catch(Exception ex)
 		{
@@ -110,9 +109,6 @@ public class Client
 			// TODO: Servers will handle this differently than receiving a transactionRequest, I think
 
 			Socket connectingNeighbor = new Socket(splitNeighbor[0], Integer.parseInt(splitNeighbor[1]));
-
-
-
 		}
 	}
 
