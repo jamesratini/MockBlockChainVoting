@@ -9,7 +9,6 @@ public class Client
 	private static ArrayList<String> serverList; // Contains IPAddress 
 	private static ArrayList<String> neighborServerList; // Contains the IP/Port pair of neighbors
 
-
 	public Client() throws IOException
 	{
 		// on init, attempt to connect to the "anchor" peer
