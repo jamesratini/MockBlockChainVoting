@@ -1,6 +1,8 @@
 import java.util.*;
 import java.io.*;
 import java.net.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 public class AnchorNode
 {
@@ -45,18 +47,7 @@ public class AnchorNode
 				
 				BufferedReader in = new BufferedReader(new InputStreamReader(initialConnectNode.getInputStream()));
 				String clientMessage = in.readLine();
-
 				System.out.println(clientMessage + "\n");
-
-				System.out.println(clientMessage);
-				if(clientMessage == "Initial Connect")
-				{
-					// Only happens when new node runs initialConnect()
-					int clientPort = Integer.parseInt(in.readLine());
-					System.out.println(clientMessage);
-					addNode(initialConnectNode, clientPort);
-					
-
 
 
 				//send the peer's client the information about its neighbors
@@ -121,43 +112,6 @@ public class AnchorNode
 		for(Node n : allNodes) {
 			//if smallest is null then just set it to be the first node in the list
 			if(smallest == null) {
-
-	private void addNode(Socket initialConnectNode, int clientPort) throws IOException {
-		// TODO Auto-generated method stub
-		//if there are no nodes in the blockchain
-		if(allNodes.isEmpty())
-		{
-			allNodes.add(new Node(initialConnectNode.getInetAddress().getHostAddress(),clientPort));
-		}
-		else
-		{
-			ArrayList<String> bestNeighbors = findBestNeighbors();
-			String returnString = "";
-			for(String s : bestNeighbors)
-			{
-				returnString = returnString + s + "/";
-			}
-			PrintWriter output = new PrintWriter(initialConnectNode.getOutputStream(), true);
-			output.println(returnString);
-			allNodes.add(new Node(initialConnectNode.getInetAddress().getHostAddress(), clientPort));
-		}
-		
-		
-	}
-
-	private ArrayList<String> findBestNeighbors()
-	{
-		// iterate through all Nodes, return 2 with least numConnections
-		ArrayList<String> bestList = new ArrayList<String>();
-		//we have to set the nodes to null because they need important parameters 
-		Node smallest = null;
-		Node secondSmallest = null;
-		//step through all the nodes, checking for the smallest number of connections on nodes.
-		
-		for(Node n : allNodes )
-		{
-			if(smallest == null)
-			{
 				smallest = n;
 			}
 			//on the next iteration of the for loop set secondSmallest
@@ -189,29 +143,16 @@ public class AnchorNode
 		}
 
 
-
 		//now add the smallest nodes to the list to return
 		newNeighbors.add(smallest);
 
 		//check to see if second smallest is still null
 		//if it is then that means that there is only one node in the array list
 		if(secondSmallest == null) {
-			newNeighbors.add(secondSmallest);
+		newNeighbors.add(secondSmallest);
 		}
 
 		//return the new neighbors
 		return newNeighbors;
-
-		
-		if(smallest != null)
-		{
-			bestList.add(smallest.getIP() + ':' + smallest.getPort());
-		}
-		if(secondSmallest != null)
-		{
-			bestList.add(secondSmallest.getIP() + ':' + secondSmallest.getPort());
-		}
-		return bestList;
-		
 	}
 }
