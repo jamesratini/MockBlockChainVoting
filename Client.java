@@ -62,36 +62,57 @@ public class Client
 		{
 			
 			PrintWriter output = new PrintWriter(anchorSocket.getOutputStream(), true);
-			output.println("Initial Connect");
-			output.println(8082);
-
-			// Read welcome message from Anchor
 			BufferedReader in = new BufferedReader(new InputStreamReader(anchorSocket.getInputStream()));
-			String clientMessage = in.readLine();
-			System.out.println(clientMessage); // Should read "Hello, From Anchor Node"
+			output.println("Initial Connect");
 
-			// Read in the nodes AnchorNode decided was best for this client to call it's neighbors
-			// DESIGN DECISION: what format are these nodes coming in??
-			// If as a Seriailized object, then deserialize and pull the objects members
-			// If as a formatted string "127.0.0.1:5000" then just split at ":"
+			output.println(8082);
+			
+			String neighborNodes;
+			while(true)
+			{
+				// Read in the nodes AnchorNode decided was best for this client to call it's neighbors
+				// DESIGN DECISION: what format are these nodes coming in??
+				// If as a Seriailized object, then deserialize and pull the objects members
+				// If as a formatted string "127.0.0.1:5000" then just split at ":"
 
-			// Assume formatted string
+				// Assume formatted string
 
-			// readLine will block until data is present in the buffer
-			String neighborNodes = in.readLine();
-			String[] neighbors = neighborNodes.split("/");
-			System.out.println(neighbors);
-			neighborServerList.add(neighbors[0]);
-			neighborServerList.add(neighbors[1]);
+				// readLine SHOULD block, but... isn't?
+				
+				neighborNodes = in.readLine();
 
-			// Close connection with AnchorNode
-			anchorSocket.close();
+				if(neighborNodes != null)
+				{
+					if(neighborNodes.contains("/") == false)
+					{
+						break;
+					}
+					else
+					{
+						String[] neighbors = neighborNodes.split("/");
+						//System.out.println(neighbors[1]);
+						for(int i = 0; i < neighbors.length; i++)
+						{
+							neighborServerList.add(neighbors[i]);
+						}
+						break;
+					}
+
+					
+				}
+
+			}
 
 			// Introduce yourself to your new neighbors!
-			//neighborIntroduction();
+			//System.out.println(neighborServerList.get(0));
+			if(neighborServerList.size() != 0)
+			{
+				neighborIntroduction();
+			}
 		}
 		catch(Exception ex)
 		{
+			anchorSocket.close();
 			ex.printStackTrace();
 		}
 
