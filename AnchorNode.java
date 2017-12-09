@@ -45,9 +45,9 @@ public class AnchorNode
 				
 				BufferedReader in = new BufferedReader(new InputStreamReader(initialConnectNode.getInputStream()));
 				String clientMessage = in.readLine();
-<<<<<<< HEAD
+
 				System.out.println(clientMessage + "\n");
-=======
+
 				System.out.println(clientMessage);
 				if(clientMessage == "Initial Connect")
 				{
@@ -56,7 +56,7 @@ public class AnchorNode
 					System.out.println(clientMessage);
 					addNode(initialConnectNode, clientPort);
 					
->>>>>>> 07be273315b07863193c1939853bc5a080d9929d
+
 
 
 				//send the peer's client the information about its neighbors
@@ -103,7 +103,6 @@ public class AnchorNode
 		return returnString;
 	}
 
-<<<<<<< HEAD
 
 
 
@@ -122,7 +121,7 @@ public class AnchorNode
 		for(Node n : allNodes) {
 			//if smallest is null then just set it to be the first node in the list
 			if(smallest == null) {
-=======
+
 	private void addNode(Socket initialConnectNode, int clientPort) throws IOException {
 		// TODO Auto-generated method stub
 		//if there are no nodes in the blockchain
@@ -159,7 +158,6 @@ public class AnchorNode
 		{
 			if(smallest == null)
 			{
->>>>>>> 07be273315b07863193c1939853bc5a080d9929d
 				smallest = n;
 			}
 			//on the next iteration of the for loop set secondSmallest
@@ -189,7 +187,7 @@ public class AnchorNode
 				}
 			}
 		}
-<<<<<<< HEAD
+
 
 
 		//now add the smallest nodes to the list to return
@@ -203,7 +201,7 @@ public class AnchorNode
 
 		//return the new neighbors
 		return newNeighbors;
-=======
+
 		
 		if(smallest != null)
 		{
@@ -215,6 +213,5 @@ public class AnchorNode
 		}
 		return bestList;
 		
->>>>>>> 07be273315b07863193c1939853bc5a080d9929d
 	}
 }
