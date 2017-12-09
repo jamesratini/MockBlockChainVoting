@@ -6,7 +6,16 @@ import java.io.InputStreamReader;
 
 public class AnchorNode
 {
-	private ArrayList<Node> allNodes;
+	private static ArrayList<Node> allNodes;
+
+	//main function
+	public static void main(String arg[]) throws Exception {
+
+		//run the server
+		AnchorNode aN = new AnchorNode();
+	}
+
+
 	public AnchorNode() throws IOException
 	{	
 		allNodes = new ArrayList<Node>();
@@ -21,94 +30,129 @@ public class AnchorNode
 		}
 	}
 
+
+
 	private void runServer() throws IOException
 	{
 		// Always be running a server
 		ServerSocket anchorSocket = new ServerSocket(8081);
-		while(true)
+		try
 		{
-			try
+			while(true)
 			{
 				
-
+				System.out.println("listening on port 8081");
 				Socket initialConnectNode = anchorSocket.accept();
+				System.out.println("CONNECTED TO CLIENT\n");
+				
 				BufferedReader in = new BufferedReader(new InputStreamReader(initialConnectNode.getInputStream()));
 				String clientMessage = in.readLine();
-				System.out.println(clientMessage);
-				if(clientMessage == "Initial Connect")
-				{
-					// Only happens when new node runs initialConnect()
-					int clientPort = Integer.parseInt(in.readLine());
-					System.out.println(clientMessage);
-					
-					ArrayList<Node> bestNeighbors = findBestNeighbors();
-					PrintWriter output = new PrintWriter(initialConnectNode.getOutputStream(), true);
-					output.println("Hello, From Anchor Node");
-
-					allNodes.add(new Node(initialConnectNode.getInetAddress().getHostAddress(), clientPort));
+				System.out.println(clientMessage + "\n");
 
 
-				}
-				else
-				{
-					// Shouldn't happen
-				}
+				//send the peer's client the information about its neighbors
+				findBestNeighbors();
+				String neighborString = getNeighborInfo();
+				PrintWriter output = new PrintWriter(initialConnectNode.getOutputStream(), true);
+				output.println(neighborString);
+
+				//now add this client to the array list
+				int clientPort = Integer.parseInt(in.readLine());
+				String clientIP = initialConnectNode.getInetAddress().getHostAddress();
 				
-
-				// Once accepted, select 2 IP/port Pairs, and serialize objects, then send
-				
+				Node newNeighbor = new Node(clientIP, clientPort);
 			}
-			finally
-			{
-				anchorSocket.close();
-			}
+		}
+		finally
+		{
+			anchorSocket.close();
 		}
 	}
 
+
+
+
+	private String getNeighborInfo() {
+		String returnString = "";
+
+		//if the peer is the first one to connect on the network
+		if(allNodes.size() == 0) {
+			returnString = "no peers on network, please wait for connections";
+		}
+		//else then there is atleast one other out there
+		else {
+			ArrayList<Node> neighbors = findBestNeighbors();
+
+			//go through the neighbors and combine thier info into the return string
+			for(Node n : neighbors) {
+				returnString += n.getIP();
+				returnString += ":";
+				returnString += Integer.toString(n.getPort());
+				returnString += "/";
+			}
+		}
+		return returnString;
+	}
+
+
+
+
+
+
 	private ArrayList<Node> findBestNeighbors()
 	{
-		// iterate through all Nodes, return 2 with least numConnections
-		ArrayList<Node> bestList = new ArrayList<Node>();
-		//we have to set the nodes to null because they need important parameters 
+		//this arraylist will hold the two smallest nodes
+		ArrayList<Node> newNeighbors = new ArrayList<Node>();
+
+		//these hold the 1st & 2nd nodes with the least connections
 		Node smallest = null;
 		Node secondSmallest = null;
-		//step through all the nodes, checking for the smallest number of connections on nodes.
-		for(Node n : allNodes )
-		{
-			if(smallest == null)
-			{
+
+		//go through the array of aleady defined nodes and check their number of connections
+		for(Node n : allNodes) {
+			//if smallest is null then just set it to be the first node in the list
+			if(smallest == null) {
 				smallest = n;
 			}
-			else if(secondSmallest == null)//we use an else if here so that it doesnt set the first node twice in the first iteration.
-			{
-				if(n.getNumConnections() < smallest.getNumConnections())
-				{
-					//switch over to the second place before overwriting smallest..
+			//on the next iteration of the for loop set secondSmallest
+			else if(secondSmallest ==  null) {
+
+				//if the current node has less connections, then switch it
+				//with the current smallest
+				if(n.getNumConnections() <= smallest.getNumConnections()) {
+					//assign the smallest to the second smallest
 					secondSmallest = smallest;
-					
-					//put the node we are currently on in the smallest holder.
+
 					smallest = n;
 				}
 			}
-			else//if the variables are both not null, compare n to both. bumping smallest to second, replacing second smallest, or neither.
-			{
-				if(n.getNumConnections() < smallest.getNumConnections())
-				{
-					//switch down to the second place
+			//if both variables have a value in it
+			else {
+				//check the current node against the smallest node
+				if(n.getNumConnections() <= smallest.getNumConnections()) {
+					//swap around the nodes
 					secondSmallest = smallest;
 					smallest = n;
 				}
-				else if(n.getNumConnections() < secondSmallest.getNumConnections())
-				{
-					//overwriting second smallest.
+				//check the current node against the second smallest node
+				else if(n.getNumConnections() < secondSmallest.getNumConnections()) {
+					//change the second smallest
 					secondSmallest = n;
 				}
 			}
 		}
-		bestList.add(smallest);
-		bestList.add(secondSmallest);
-		return bestList;
-		
+
+
+		//now add the smallest nodes to the list to return
+		newNeighbors.add(smallest);
+
+		//check to see if second smallest is still null
+		//if it is then that means that there is only one node in the array list
+		if(secondSmallest == null) {
+			newNeighbors.add(secondSmallest);
+		}
+
+		//return the new neighbors
+		return newNeighbors;
 	}
-	
 }
