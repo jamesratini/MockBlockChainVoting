@@ -43,24 +43,21 @@ public class AnchorNode
 				
 				System.out.println("listening on port 8081");
 				Socket initialConnectNode = anchorSocket.accept();
-				System.out.println("CONNECTED TO CLIENT\n");
+				System.out.println("CONNECTED TO CLIENT\n\n\n\n\n\n\n\n\n\n");
 				
 				BufferedReader in = new BufferedReader(new InputStreamReader(initialConnectNode.getInputStream()));
 				String clientMessage = in.readLine();
 				System.out.println(clientMessage + "\n");
 
-
-				//send the peer's client the information about its neighbors
-				findBestNeighbors();
-				String neighborString = getNeighborInfo();
-				PrintWriter output = new PrintWriter(initialConnectNode.getOutputStream(), true);
-				output.println(neighborString);
-
 				//now add this client to the array list
 				int clientPort = Integer.parseInt(in.readLine());
 				String clientIP = initialConnectNode.getInetAddress().getHostAddress();
-				
-				Node newNeighbor = new Node(clientIP, clientPort);
+
+
+				String neighborString = getNeighborInfo(clientPort, clientIP);
+				PrintWriter output = new PrintWriter(initialConnectNode.getOutputStream(), true);
+				output.println(neighborString);
+
 			}
 		}
 		finally
@@ -72,27 +69,48 @@ public class AnchorNode
 
 
 
-	private String getNeighborInfo() {
+	private String getNeighborInfo(int port, String ip) {
 		String returnString = "";
 
 		//if the peer is the first one to connect on the network
 		if(allNodes.size() == 0) {
 			returnString = "no peers on network, please wait for connections";
+
+			//add the node to the array list
+			Node newNeighbor = new Node(ip, port);
+			allNodes.add(newNeighbor);
 		}
 		//else then there is atleast one other out there
 		else {
-			ArrayList<Node> neighbors = findBestNeighbors();
+			boolean isOnNetwork = false;
 
-			//go through the neighbors and combine thier info into the return string
-			for(Node n : neighbors) {
-				returnString += n.getIP();
+			for(Node n : allNodes) {
+				//check whether or not the current node is in the array list
+				if(n.getIP() != ip && n.getPort() != port) {
+					returnString += n.getIP();
 				returnString += ":";
 				returnString += Integer.toString(n.getPort());
 				returnString += "/";
+				}
+				//if it is found in the network array list
+				else {
+					isOnNetwork = true;
+				}
 			}
+
+			//if is on network is still false, then add the neighbor
+			if(isOnNetwork == false) {
+				//add the node to the array list
+				Node newNeighbor = new Node(ip, port);
+				allNodes.add(newNeighbor);
+			}
+
+
+			//ArrayList<Node> neighbors = findBestNeighbors();
 		}
 		return returnString;
 	}
+
 
 
 
