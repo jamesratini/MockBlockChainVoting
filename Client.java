@@ -27,7 +27,7 @@ public class Client
 
 	}
 
-	public void sendTransactionRequest() throws IOException
+	public void sendTransactionRequest(String receiver, String myPublicKey) throws IOException
 	{
 		// iterate through all serverSockets and attempt to connect and send the message
 		// TODO: Run in a thread
@@ -37,10 +37,9 @@ public class Client
 			Socket neighbor = new Socket(splitPair[0], Integer.parseInt(splitPair[1]));
 			try
 			{
-				
-
 				PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
-				output.printf("Hello, %s", neighborPeerList.get(i));
+				output.println("Transaction Incoming");
+				output.printf("%s:%s", myPublicKey, receiver);
 			}
 			finally
 			{
@@ -130,6 +129,27 @@ public class Client
 
 			Socket connectingNeighbor = new Socket(splitNeighbor[0], Integer.parseInt(splitNeighbor[1]));
 		}
+	}
+	public void sendValidation(String ip, int port, boolean valid) throws IOException
+	{
+		// Sends back to the peer if their transaction is valid
+
+		Socket neighborNode = new Socket(ip, port);
+		try
+		{
+			PrintWriter output = new PrintWriter(neighborNode.getOutputStream(), true);
+			output.printf("Validation: %s", valid ? "true" : "false");
+
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		finally
+		{
+			neighborNode.close();
+		}
+
 	}
 
 }
