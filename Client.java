@@ -38,7 +38,7 @@ public class Client
 			try
 			{
 				PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
-				output.println("Transaction Incoming");
+				output.println("Transaction Incoming from: ");
 				output.printf("%s:%s", myPublicKey, receiver);
 			}
 			finally
