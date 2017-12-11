@@ -27,48 +27,35 @@ public class Client
 
 	}
 
-	public void sendTransactionRequest(boolean valid) throws IOException
+
+	public void sendTransactionRequest(String receiver, String myPublicKey) throws IOException
+
 	{
 		// iterate through all serverSockets and attempt to connect and send the message
 		// TODO: Run in a thread
-		if(valid)
+		
+		for(int i = 0; i < neighborServerList.size(); i++)
 		{
-			for(int i = 0; i < neighborServerList.size(); i++)
-			{
-				String[] splitPair = neighborServerList.get(i).split(":");
-				Socket neighbor = new Socket(splitPair[0], Integer.parseInt(splitPair[1]));
-				try
-				{
-					PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
-					output.printf("Hello, %s", neighborPeerList.get(i));
-				}
-				finally
-				{
-					neighbor.close();
-				}
-				
-			}
-		}
-		else
-		{
-			// Transaction not valid based on OUR public records
-			for(int i = 0; i < neighborServerList.size(); i++)
-			{
-				String[] splitPair = neighborServerList.get(i).split(":");
-				Socket neighbor = new Socket(splitPair[0], Integer.parseInt(splitPair[1]));
 
-				try
-				{
-					PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
-					
-				}
-				catch(Exception ex)
-				{
-					ex.printStackTrace();
-				}
+			String[] splitPair = neighborServerList.get(i).split(":");
+			Socket neighbor = new Socket(splitPair[0], Integer.parseInt(splitPair[1]));
+			try
+			{
+				PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
+				output.printf("Hello, %s", neighborPeerList.get(i));
 			}
+			finally
+			{
+				neighbor.close();
+			}
+			
+
+			PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
+			output.println("Transaction Incoming");
+			output.printf("%s:%s", myPublicKey, receiver);
+
 		}
-		 	
+	 	
 	}
 
 	// DO NOT RUN AS A THREAD!!!
@@ -152,6 +139,27 @@ public class Client
 
 			Socket connectingNeighbor = new Socket(splitNeighbor[0], Integer.parseInt(splitNeighbor[1]));
 		}
+	}
+	public void sendValidation(String ip, int port, boolean valid) throws IOException
+	{
+		// Sends back to the peer if their transaction is valid
+
+		Socket neighborNode = new Socket(ip, port);
+		try
+		{
+			PrintWriter output = new PrintWriter(neighborNode.getOutputStream(), true);
+			output.printf("Validation: %s", valid ? "true" : "false");
+
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		finally
+		{
+			neighborNode.close();
+		}
+
 	}
 
 }
