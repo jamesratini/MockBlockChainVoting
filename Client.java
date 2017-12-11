@@ -27,27 +27,48 @@ public class Client
 
 	}
 
-	public void sendTransactionRequest() throws IOException
+	public void sendTransactionRequest(boolean valid) throws IOException
 	{
 		// iterate through all serverSockets and attempt to connect and send the message
 		// TODO: Run in a thread
-		for(int i = 0; i < neighborServerList.size(); i++)
+		if(valid)
 		{
-			String[] splitPair = neighborServerList.get(i).split(":");
-			Socket neighbor = new Socket(splitPair[0], Integer.parseInt(splitPair[1]));
-			try
+			for(int i = 0; i < neighborServerList.size(); i++)
 			{
+				String[] splitPair = neighborServerList.get(i).split(":");
+				Socket neighbor = new Socket(splitPair[0], Integer.parseInt(splitPair[1]));
+				try
+				{
+					PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
+					output.printf("Hello, %s", neighborPeerList.get(i));
+				}
+				finally
+				{
+					neighbor.close();
+				}
 				
-
-				PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
-				output.printf("Hello, %s", neighborPeerList.get(i));
 			}
-			finally
+		}
+		else
+		{
+			// Transaction not valid based on OUR public records
+			for(int i = 0; i < neighborServerList.size(); i++)
 			{
-				neighbor.close();
+				String[] splitPair = neighborServerList.get(i).split(":");
+				Socket neighbor = new Socket(splitPair[0], Integer.parseInt(splitPair[1]));
+
+				try
+				{
+					PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
+					
+				}
+				catch(Exception ex)
+				{
+					ex.printStackTrace();
+				}
 			}
-			
-		} 	
+		}
+		 	
 	}
 
 	// DO NOT RUN AS A THREAD!!!
@@ -94,6 +115,7 @@ public class Client
 						for(int i = 0; i < neighbors.length; i++)
 						{
 							neighborServerList.add(neighbors[i]);
+							System.out.println(neighbors[i]);
 						}
 						break;
 					}
