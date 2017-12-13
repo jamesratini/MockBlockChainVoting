@@ -27,6 +27,7 @@ public class Client
 
 	}
 
+
 	public void sendTransactionRequest(String reciever) throws IOException
 	{
 		// iterate through all serverSockets and attempt to connect and send the message
@@ -37,10 +38,12 @@ public class Client
 			Socket neighbor = new Socket(splitPair[0], Integer.parseInt(splitPair[1]));
 			try
 			{
+				PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
+
+				output.printf("MY_PUBLIC_KEY voting for %s", reciever);
+
 				
 
-				PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
-				output.printf("MY_PUBLIC_KEY voting for %s", reciever);
 			}
 			finally
 			{
@@ -141,6 +144,27 @@ public class Client
 			}
 			
 		}
+	}
+	public void sendValidation(String ip, int port, boolean valid) throws IOException
+	{
+		// Sends back to the peer if their transaction is valid
+
+		Socket neighborNode = new Socket(ip, port);
+		try
+		{
+			PrintWriter output = new PrintWriter(neighborNode.getOutputStream(), true);
+			output.printf("Validation: %s", valid ? "true" : "false");
+
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		finally
+		{
+			neighborNode.close();
+		}
+
 	}
 
 }
