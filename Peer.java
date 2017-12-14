@@ -7,7 +7,8 @@ import java.util.concurrent.atomic.*;
 // TO TEST
 // Make sure server recieves proper message when its supposed to
 // Make sure validationVotes is actually thread safe
-// 
+// Make sure all neighbors receive the introduction message.
+// Make sure receiving an introduction message is properly handled
 
 public class Peer
 {
@@ -28,13 +29,14 @@ public class Peer
 		// This information is used by other peers to identify this peer
 		peerId = id;
 		ipAddress = ip;
-		this.serverPort = port;
+		serverPort = port;
 		neighborServerList = new ArrayList<String>();
 		publicRecords = new PublicRecords();
 		validationVotesTrue = new AtomicInteger(0);
 		validationVotesFalse = new AtomicInteger(0);
 
 		// Initialize Ledger and Public Record
+		//initialConnect();
 	}
 
 	// PEER
@@ -52,11 +54,6 @@ public class Peer
 		// Initialize a server
 		// Run server on a thread so application can listen for incoming connections while doing other things
 
-		
-		
-
-		
-
 		try{
 			//create the socket and set it up to be a server socket
 			ServerSocket server = new ServerSocket(serverPort);
@@ -71,40 +68,9 @@ public class Peer
 				//once we have a connection we will complete the rest of the code
 
 				// Run as a thread so we can accept multiple connections
-				new Thread()
-				{
-					public void run()
-					{
-						try
-						{
-							processMessage(server.accept());
-						}
-						catch(Exception ex)
-						{
-							ex.printStackTrace();
-						}
-						
-					}
-				}.start();
 				
-
+				processMessage(server.accept());
 				
-
-				//print out to let the user know that we recieved a message from the client
-				//System.out.println("Message from client:    " + message + "\n\n");
-
-				//send a return message
-				//String returnMessage = "Message recieved";;
-
-
-				//open an output stream to send the response bac
-				//OutputStream os = sock.getOutputStream();
-				//OutputStreamWriter osw = new OutputStreamWriter(os);
-				//BufferedWriter bufferw = new BufferedWriter(osw);
-
-				//bufferw.write(returnMessage);
-
-				//bufferw.flush();
 			}
 		}
 		catch(Exception e) {
@@ -128,7 +94,7 @@ public class Peer
 	private void processMessage(Socket connection) throws IOException
 	{
 		//let them know we connected
-		System.out.println("CONNECTED\n\n\n\n");
+		System.out.printf("Connected to %s", connection.getInetAddress().getHostAddress());
 
 		//grab the input from the client
 		InputStream is = connection.getInputStream();
@@ -166,13 +132,10 @@ public class Peer
 		{
 			// New Neighbor
 			// Add new neighbor info to my neighbors
+
+			// Current introduction message contains no useful info. For POC purposes, it doesn't need to
 		}
-		else if(message.contains("Response Validation"))
-		{
-			// Response to our transaction request
-			// Keep running tally of # true & # false
-			// Once true + false == size of all neighbors, send out confirmation transaction is good. don't do anything if false
-		}
+	
 		else if(message.contains("Approved Transaction"))
 		{
 			// Valid Transaction Request
@@ -183,18 +146,12 @@ public class Peer
 		connection.close();
 	}
 
-	// ------- CLIENT---------
-	/*public void openClient()
-	{
-		// Initialize a client
-		// Run client on a thread so application can send connections while doing other things
-		
-	}*/
-
 	public void sendTransactionRequest(String receiver, String myPublicKey) throws IOException
 	{
 		// Iterate through neighbors (everyone) and send the transaction request
 		// Server aspect will listen to neighbors evaluations, if 
+
+		//ThreadGroup allThreads = new ThreadGroup("Transaction Request Threads");
 		for(int i = 0; i < neighborServerList.size(); i++)
 		{
 			String[] splitPair = neighborServerList.get(i).split(":");
@@ -242,12 +199,9 @@ public class Peer
 					{
 						ex.printStackTrace();
 					}
-					
-
+					// DO THREADS CLEANLY KILL THEMSELVES????
 				}	
 			}.start();
-			
-			
 			
 			
 		} 	
@@ -323,16 +277,37 @@ public class Peer
 
 	private void neighborIntroduction() throws IOException
 	{
-		String[] splitNeighbor;
+		
 		for(String neighbor : neighborServerList)
 		{
-			splitNeighbor = neighbor.split(":");
+			String[] splitNeighbor = neighbor.split(":");
 			// Send an intro message
 			// TODO: This message will contain all of this peers info that other peers need to know, public key and remaining votes
 			// TODO: Servers will handle this differently than receiving a transactionRequest, I think
 
-			Socket connectingNeighbor = new Socket(splitNeighbor[0], Integer.parseInt(splitNeighbor[1]));
+			new Thread()
+			{
+				public void run()
+				{
+					try
+					{
+						String[] myPair = splitNeighbor;
+						Socket connectingNeighbor = new Socket(myPair[0], Integer.parseInt(myPair[1]));
+						PrintWriter output = new PrintWriter(connectingNeighbor.getOutputStream(), true);
+						output.println("Hello, I'm PUBLIC_KEY and I have REMAINING_VOTES votes to use");
+						connectingNeighbor.close();
+					}
+					catch(Exception ex)
+					{
+						ex.printStackTrace();
+					}
+				}
+			}.start();
+
+
 		}
+
+		// Once all threads have returned, evaluate transaction success
 	}
 
 
