@@ -134,6 +134,7 @@ public class Peer
 			// Add new neighbor info to my neighbors
 
 			// Current introduction message contains no useful info. For POC purposes, it doesn't need to
+			System.out.println(message);
 		}
 	
 		else if(message.contains("Approved Transaction"))
@@ -151,13 +152,13 @@ public class Peer
 		// Iterate through neighbors (everyone) and send the transaction request
 		// Server aspect will listen to neighbors evaluations, if 
 
-		//ThreadGroup allThreads = new ThreadGroup("Transaction Request Threads");
+		ThreadGroup allThreads = new ThreadGroup("Transaction Request Threads");
 		for(int i = 0; i < neighborServerList.size(); i++)
 		{
 			String[] splitPair = neighborServerList.get(i).split(":");
 
 			// Start a new thread to handle the selected neighbor. This thread will remain active until it receives a response from its neighbor. It will then increment a thread safe variable
-			new Thread()
+			new Thread(allThreads, "name?")
 			{
 				public void run()
 				{
@@ -203,7 +204,8 @@ public class Peer
 				}	
 			}.start();
 			
-			
+			// Wait for all threads to finish
+			// Tally the votes
 		} 	
 	}
 
@@ -294,7 +296,7 @@ public class Peer
 						String[] myPair = splitNeighbor;
 						Socket connectingNeighbor = new Socket(myPair[0], Integer.parseInt(myPair[1]));
 						PrintWriter output = new PrintWriter(connectingNeighbor.getOutputStream(), true);
-						output.println("Hello, I'm PUBLIC_KEY and I have REMAINING_VOTES votes to use");
+						output.println("Introduction: Hello, I'm PUBLIC_KEY and I have REMAINING_VOTES votes to use");
 						connectingNeighbor.close();
 					}
 					catch(Exception ex)
