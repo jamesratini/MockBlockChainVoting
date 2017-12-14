@@ -1,9 +1,20 @@
+import java.util.*;
+import java.io.*;
+import java.net.*;
+import java.util.concurrent.atomic.*;
+
+
 public class Peer
 {
 	private int peerId;
+	private AtomicInteger validationVotesTrue;
+	private AtomicInteger validationVotesFalse;
 	private String ipAddress;
 	private int port;
 	private Client client;
+	private PublicRecords publicRecords;
+	private static ArrayList<String> neighborServerList; // Contains the IP/Port pair of neighbors
+
 	//private Server server; 
 
 	public Peer(int id, String ip, int port)
@@ -13,6 +24,10 @@ public class Peer
 		peerId = id;
 		ipAddress = ip;
 		this.port = port;
+		neighborServerList = new ArrayList<String>();
+		publicRecords = new PublicRecords();
+		validationVotesTrue = new AtomicInteger(0);
+		validationVotesFalse = new AtomicInteger(0);
 
 		// Initialize Ledger and Public Record
 	}
@@ -32,39 +47,128 @@ public class Peer
 		// Initialize a server
 		// Run server on a thread so application can listen for incoming connections while doing other things
 
+		
+		
+
+		
+
+		try{
+			//create the socket and set it up to be a server socket
+			ServerSocket server = new ServerSocket(port);
+
+			//print out to let the user know what port we are listening on
+			//and the fact that we are listening
+			System.out.println("Waiting for connection on port: " + port);
+
+			//keep the server up and running
+			while(true) {
+				//wait for a connection
+				//once we have a connection we will complete the rest of the code
+
+				// Run as a thread so we can accept multiple connections
+				
+				processMessage(server.accept());
+
+				
+
+				//print out to let the user know that we recieved a message from the client
+				//System.out.println("Message from client:    " + message + "\n\n");
+
+				//send a return message
+				//String returnMessage = "Message recieved";;
+
+
+				//open an output stream to send the response bac
+				//OutputStream os = sock.getOutputStream();
+				//OutputStreamWriter osw = new OutputStreamWriter(os);
+				//BufferedWriter bufferw = new BufferedWriter(osw);
+
+				//bufferw.write(returnMessage);
+
+				//bufferw.flush();
+			}
+		}
+		catch(Exception e) {
+			System.out.println(e);
+		}
 	}
 
-	public boolean evaluateTransaction(String publicKey)
+	public boolean evaluateTransaction(String senderKey, String receiverKey)
 	{
+		boolean retVal = false;
 		// Check if the publicKey has any remaining votes
 		// If evaluation is good - send true back to sending server
 		// If evaluation is bad - send false back to sending server
+		if(publicRecords.contains(senderKey) && publicRecords.contains(receiverKey) && publicRecords.hasVote(senderKey))
+		{
+			retVal = true;
+		}
+
+		return retVal;
 	}
-	private void processMessage(String message)
+	private void processMessage(Socket connection) throws IOException
 	{
+		//let them know we connected
+		System.out.println("CONNECTED\n\n\n\n");
+
+		//grab the input from the client
+		InputStream is = connection.getInputStream();
+		InputStreamReader isr = new InputStreamReader(is);
+
+		//create a buffer to read through message
+		BufferedReader buffer = new BufferedReader(isr);
+
+		//grab the message from the buffer
+		String message = buffer.readLine();
 		// Will take a different branch for all possible outcomes
 
-		// TransactionRequest
+		
+		if(message.contains("Transaction Request"))
+		{
+			// TransactionRequest
 			// Evaluate
+			// Respond with our evaluation of the request
 
-		// New Neighbor
+			String[] split = message.split(":");
+			PrintWriter output = new PrintWriter(connection.getOutputStream(), true);
+
+			if(evaluateTransaction(split[1], split[2]))
+			{
+				output.printf("Response Validation: true");
+			}
+			else
+			{
+				output.printf("Response Validation: false");
+			}
+		}
+		else if(message.contains("Introduction"))
+		{
+			// New Neighbor
 			// Add new neighbor info to my neighbors
-
-		// Response to our transaction request
+		}
+		else if(message.contains("Response Validation"))
+		{
+			// Response to our transaction request
 			// Keep running tally of # true & # false
 			// Once true + false == size of all neighbors, send out confirmation transaction is good. don't do anything if false
-
-		// Valid Transaction Request
+		}
+		else if(message.contains("Approved Transaction"))
+		{
+			// Valid Transaction Request
 			// Add Transaction
+			// Keep tally, can't add until all nodes verify it is a successful transaction
+		}
+
+		connection.close();
 	}
 
 	// ------- CLIENT---------
-	public void openClient()
+	/*public void openClient()
 	{
 		// Initialize a client
 		// Run client on a thread so application can send connections while doing other things
-		client = new Client();
-	}
+		
+	}*/
 
 	public void sendTransactionRequest(String receiver, String myPublicKey) throws IOException
 	{
@@ -78,8 +182,8 @@ public class Peer
 			try
 			{
 				PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
-				output.println("Transaction Incoming from: ");
-				output.printf("%s:%s", myPublicKey, receiver);
+				output.printf("Transaction Request:%s:%s:%d", myPublicKey, receiver, peerId);
+				
 			}
 			finally
 			{

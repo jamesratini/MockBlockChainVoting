@@ -36,19 +36,7 @@ public class Client
 		{
 			String[] splitPair = neighborServerList.get(i).split(":");
 			Socket neighbor = new Socket(splitPair[0], Integer.parseInt(splitPair[1]));
-			try
-			{
-				PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
-
-				output.printf("MY_PUBLIC_KEY voting for %s", reciever);
-
-				
-
-			}
-			finally
-			{
-				neighbor.close();
-			}
+			
 			
 		} 	
 	}
