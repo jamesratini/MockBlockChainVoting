@@ -23,11 +23,11 @@ public class Peer
 
 	//private Server server; 
 
-	public Peer(int id, String ip, int port)
+	public Peer(String ip, int port)
 	{
 		// Assign important information about the peer
 		// This information is used by other peers to identify this peer
-		peerId = id;
+		//peerId = id;
 		ipAddress = ip;
 		serverPort = port;
 		neighborServerList = new ArrayList<String>();
@@ -263,10 +263,13 @@ public class Peer
 			}
 
 			// Introduce yourself to your new neighbors!
-			//System.out.println(neighborServerList.get(0));
+			for(int i = 0; i < neighborServerList.size(); i++)
+			{
+				System.out.println(neighborServerList.get(i));
+			}
 			if(neighborServerList.size() != 0)
 			{
-				neighborIntroduction();
+				//neighborIntroduction();
 			}
 		}
 		catch(Exception ex)
