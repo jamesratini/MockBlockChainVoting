@@ -4,13 +4,18 @@ import java.net.*;
 import java.util.concurrent.atomic.*;
 
 
+// TO TEST
+// Make sure server recieves proper message when its supposed to
+// Make sure validationVotes is actually thread safe
+// 
+
 public class Peer
 {
 	private int peerId;
 	private AtomicInteger validationVotesTrue;
 	private AtomicInteger validationVotesFalse;
 	private String ipAddress;
-	private int port;
+	private int serverPort;
 	private Client client;
 	private PublicRecords publicRecords;
 	private static ArrayList<String> neighborServerList; // Contains the IP/Port pair of neighbors
@@ -23,7 +28,7 @@ public class Peer
 		// This information is used by other peers to identify this peer
 		peerId = id;
 		ipAddress = ip;
-		this.port = port;
+		this.serverPort = port;
 		neighborServerList = new ArrayList<String>();
 		publicRecords = new PublicRecords();
 		validationVotesTrue = new AtomicInteger(0);
@@ -54,11 +59,11 @@ public class Peer
 
 		try{
 			//create the socket and set it up to be a server socket
-			ServerSocket server = new ServerSocket(port);
+			ServerSocket server = new ServerSocket(serverPort);
 
 			//print out to let the user know what port we are listening on
 			//and the fact that we are listening
-			System.out.println("Waiting for connection on port: " + port);
+			System.out.println("Waiting for connection on port: " + serverPort);
 
 			//keep the server up and running
 			while(true) {
@@ -66,8 +71,22 @@ public class Peer
 				//once we have a connection we will complete the rest of the code
 
 				// Run as a thread so we can accept multiple connections
+				new Thread()
+				{
+					public void run()
+					{
+						try
+						{
+							processMessage(server.accept());
+						}
+						catch(Exception ex)
+						{
+							ex.printStackTrace();
+						}
+						
+					}
+				}.start();
 				
-				processMessage(server.accept());
 
 				
 
@@ -134,12 +153,14 @@ public class Peer
 
 			if(evaluateTransaction(split[1], split[2]))
 			{
-				output.printf("Response Validation: true");
+				output.printf("true");
 			}
 			else
 			{
-				output.printf("Response Validation: false");
+				output.printf("false");
 			}
+
+
 		}
 		else if(message.contains("Introduction"))
 		{
@@ -174,21 +195,60 @@ public class Peer
 	{
 		// Iterate through neighbors (everyone) and send the transaction request
 		// Server aspect will listen to neighbors evaluations, if 
-		// TODO: Run in a thread
 		for(int i = 0; i < neighborServerList.size(); i++)
 		{
 			String[] splitPair = neighborServerList.get(i).split(":");
-			Socket neighbor = new Socket(splitPair[0], Integer.parseInt(splitPair[1]));
-			try
+
+			// Start a new thread to handle the selected neighbor. This thread will remain active until it receives a response from its neighbor. It will then increment a thread safe variable
+			new Thread()
 			{
-				PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
-				output.printf("Transaction Request:%s:%s:%d", myPublicKey, receiver, peerId);
-				
-			}
-			finally
-			{
-				neighbor.close();
-			}
+				public void run()
+				{
+					try
+					{
+						String[] myPair = splitPair;			
+						
+						// Send out the transaction request info
+						Socket neighbor = new Socket(myPair[0], Integer.parseInt(myPair[1]));
+					
+						PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
+						output.printf("Transaction Request:%s:%s", myPublicKey, receiver);
+						
+						// Wait for out chosen neighbor to respond back
+						BufferedReader in = new BufferedReader(new InputStreamReader(neighbor.getInputStream()));
+						while(true)
+						{
+							String response = in.readLine();
+
+							if(response != null)
+							{
+								if(response == "true")
+								{
+									// Increment atomic integer for true validation
+									validationVotesTrue.incrementAndGet();
+								}
+								else if(response == "false")
+								{
+									// Increment atomic integer for false validation
+									validationVotesFalse.incrementAndGet();
+								}
+
+								break;
+							}
+						}
+						neighbor.close();
+					}
+					catch(Exception ex)
+					{
+						ex.printStackTrace();
+					}
+					
+
+				}	
+			}.start();
+			
+			
+			
 			
 		} 	
 	}
