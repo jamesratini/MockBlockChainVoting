@@ -27,7 +27,8 @@ public class Client
 
 	}
 
-	public void sendTransactionRequest(String receiver, String myPublicKey) throws IOException
+
+	public void sendTransactionRequest(String reciever) throws IOException
 	{
 		// iterate through all serverSockets and attempt to connect and send the message
 		// TODO: Run in a thread
@@ -35,16 +36,7 @@ public class Client
 		{
 			String[] splitPair = neighborServerList.get(i).split(":");
 			Socket neighbor = new Socket(splitPair[0], Integer.parseInt(splitPair[1]));
-			try
-			{
-				PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
-				output.println("Transaction Incoming");
-				output.printf("%s:%s", myPublicKey, receiver);
-			}
-			finally
-			{
-				neighbor.close();
-			}
+			
 			
 		} 	
 	}
@@ -127,7 +119,18 @@ public class Client
 			// TODO: This message will contain all of this peers info that other peers need to know, public key and remaining votes
 			// TODO: Servers will handle this differently than receiving a transactionRequest, I think
 
-			Socket connectingNeighbor = new Socket(splitNeighbor[0], Integer.parseInt(splitNeighbor[1]));
+			try
+			{
+				Socket connectingNeighbor = new Socket(splitNeighbor[0], Integer.parseInt(splitNeighbor[1]));
+				PrintWriter output = new PrintWriter(connectingNeighbor.getOutputStream(), true);
+				output.println("Hello, I'm PUBLIC_KEY and I have REMAINING_VOTES votes to use");
+				connectingNeighbor.close();
+			}
+			catch(Exception ex)
+			{
+				ex.printStackTrace();
+			}
+			
 		}
 	}
 	public void sendValidation(String ip, int port, boolean valid) throws IOException
