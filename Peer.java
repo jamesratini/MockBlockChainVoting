@@ -23,7 +23,7 @@ public class Peer
 
 	//private Server server; 
 
-	public Peer(String ip, int port)
+	public Peer(String ip, int port) throws IOException
 	{
 		// Assign important information about the peer
 		// This information is used by other peers to identify this peer
@@ -36,7 +36,15 @@ public class Peer
 		validationVotesFalse = new AtomicInteger(0);
 
 		// Initialize Ledger and Public Record
-		//initialConnect();
+		try
+		{
+			initialConnect();
+		}
+		catch(Exception ex)
+		{
+
+		}
+		
 	}
 
 	// PEER
@@ -225,7 +233,7 @@ public class Peer
 			output.println("Initial Connect");
 
 			output.println(8082);
-			
+			System.out.println("Attempted anchor connect");
 			String neighborNodes;
 			while(true)
 			{

@@ -1,4 +1,4 @@
-
+import java.util.*;
 public class BlockChain 
 {
 	private LinkedList<Block> chain;
