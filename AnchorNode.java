@@ -61,13 +61,17 @@ public class AnchorNode
 				output.println(neighborString);
 
 
-				//add the node to the array list
 				Node newNeighbor = new Node(clientIP, clientPort);
-				allNodes.add(newNeighbor);
 
+				
 
 				for(Node node : allNodes) {
 					System.out.println(node.getIP());
+					//add the node to the array list
+					if(!node.getIP().equals(clientIP) && node.getPort() != clientPort)
+					{
+						allNodes.add(newNeighbor);
+					}
 				}
 			}
 		}
