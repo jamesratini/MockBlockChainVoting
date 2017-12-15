@@ -156,7 +156,7 @@ public class Peer
 			// Add the new neighbor
 			System.out.printf("new neighbor: %s \n", message);
 			String[] splitMsg = message.split(":");
-			neighborServerList.add(splitMsg[1] + splitMsg[2]);
+			neighborServerList.add(splitMsg[1] + ":" + splitMsg[2]);
 			
 			for(int i = 0; i < neighborServerList.size(); i++)
 			{
