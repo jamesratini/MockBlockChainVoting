@@ -176,7 +176,7 @@ public class Peer
 			// Add Transaction
 			// Keep tally, can't add until all nodes verify it is a successful transaction
 		}
-
+		buffer.reset();
 		connection.close();
 	}
 
