@@ -201,13 +201,14 @@ public class Peer
 						Socket neighbor = new Socket(myPair[0], Integer.parseInt(myPair[1]));
 					
 						PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
-						output.printf("Transaction Request: WHAT THE FUCK IS UP IM HORNY AND SUICIDAL");
+						output.printf("Transaction Request: BLAHHH \n");
 						System.out.println("sent request");
 						
 						// Wait for out chosen neighbor to respond back
 						BufferedReader in = new BufferedReader(new InputStreamReader(neighbor.getInputStream()));
 						while(true)
 						{
+							System.out.println("waiting for response");
 							String response = in.readLine();
 
 							if(response != null)
