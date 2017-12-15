@@ -101,11 +101,7 @@ public class Peer
 		// If evaluation is bad - send false back to sending server
 		if(publicRecords.contains(senderKey) && publicRecords.contains(receiverKey) && publicRecords.hasVote(senderKey))
 		{
-			System.out.printf("%s voting for %s is valid \n", senderKey, receiverKey);
 			retVal = true;
-		}
-		else {
-			System.out.println("SHOULDNT BE IN HERE FUCKTARD");
 		}
 
 		return retVal;
@@ -166,11 +162,18 @@ public class Peer
 
 		}
 	
-		else if(message.contains("Approved Transaction"))
+		else if(message.contains("Valid Transaction"))
 		{
 			// Valid Transaction Request
 			// Add Transaction
-			// Keep tally, can't add until all nodes verify it is a successful transaction
+
+			//Proof of concept. We're so tired
+			// Split message into sender and receiver
+			// Ledger.add(new Transaction(sender, receiver))
+
+			// If the Ledger now contains 10 transactions, make a new block
+			// newBlock()
+			
 		}
 		connection.close();
 	}
@@ -179,7 +182,6 @@ public class Peer
 	{
 		// Iterate through neighbors (everyone) and send the transaction request
 		// Server aspect will listen to neighbors evaluations, if 
-		System.out.println("In STR");
 
 		for(int i = 0; i < neighborServerList.size(); i++)
 		{
@@ -187,56 +189,77 @@ public class Peer
 
 			// Start a new thread to handle the selected neighbor. This thread will remain active until it receives a response from its neighbor. It will then increment a thread safe variable
 			try
-					{
-						System.out.println("Made new thread");
-						String[] myPair = splitPair;			
-						
-						// Send out the transaction request info
-						System.out.printf("%s %d", myPair[0], Integer.parseInt(myPair[1]));
-						Socket neighbor = new Socket(myPair[0], Integer.parseInt(myPair[1]));
-					
-						PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
-						output.printf("Transaction Request:%s:%s\n", "James", "Chase");
-						System.out.println("sent request");
-						
-						// Wait for out chosen neighbor to respond back
-						BufferedReader in = new BufferedReader(new InputStreamReader(neighbor.getInputStream()));
-						while(true)
-						{
-							System.out.println("waiting for response");
-							String response = in.readLine();
-
-							if(response != null)
-							{
-								if(response.equals("true"))
-								{
-									System.out.println("Received true");
-									// Increment atomic integer for true validation
-									validationVotesTrue.incrementAndGet();
-								}
-								else if(response.equals("false"))
-								{
-									System.out.println("Received false");
-									// Increment atomic integer for false validation
-									validationVotesFalse.incrementAndGet();
-								}
-
-								break;
-							}
-						}
-						
-						neighbor.close();
-					}
-					catch(Exception ex)
-					{
-						ex.printStackTrace();
-					}
-					// DO THREADS CLEANLY KILL THEMSELVES????
+			{
+				String[] myPair = splitPair;			
+				
+				// Send out the transaction request info
+				System.out.printf("%s %d", myPair[0], Integer.parseInt(myPair[1]));
+				Socket neighbor = new Socket(myPair[0], Integer.parseInt(myPair[1]));
 			
+				PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
+				output.printf("Transaction Request:%s:%s\n", "James", "Chase");
+				
+				// Wait for out chosen neighbor to respond back
+				BufferedReader in = new BufferedReader(new InputStreamReader(neighbor.getInputStream()));
+				while(true)
+				{
+					String response = in.readLine();
+
+					if(response != null)
+					{
+						if(response.equals("true"))
+						{
+							// Increment atomic integer for true validation
+							validationVotesTrue.incrementAndGet();
+						}
+						else if(response.equals("false"))
+						{
+							// Increment atomic integer for false validation
+							validationVotesFalse.incrementAndGet();
+						}
+
+						break;
+					}
+				}
+				
+				neighbor.close();
+			}
+			catch(Exception ex)
+			{
+				ex.printStackTrace();
+			}
+					// DO THREADS CLEANLY KILL THEMSELVES????
+			if(validationVotesTrue.get() == neighborServerList.size())
+			{
+				// Our transaction is valid. Let everyone know
+
+			}
 			
 			// Wait for all threads to finish
 			// Tally the votes
 		} 	
+	}
+	private void sendValidTransaction(String sender, String receiver)
+	{
+		for(String neighbor : neighborServerList)
+		{
+			String[] splitPair = neighbor.split(":");
+
+			// Start a new thread to handle the selected neighbor. This thread will remain active until it receives a response from its neighbor. It will then increment a thread safe variable
+			try
+			{
+				// Send out the transaction request info
+				System.out.printf("%s:%s", splitPair[0], splitPair[1]);
+				Socket sock = new Socket(splitPair[0], Integer.parseInt(splitPair[1]));
+			
+				PrintWriter output = new PrintWriter(sock.getOutputStream(), true);
+				output.printf("Valid Transaction:%s:%s\n", sender, receiver);
+			}
+			catch(Exception ex)
+			{
+
+			}
+		}
 	}
 
 	// DO NOT RUN AS A THREAD!!!
