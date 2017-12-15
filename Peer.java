@@ -196,7 +196,7 @@ public class Peer
 						Socket neighbor = new Socket(myPair[0], Integer.parseInt(myPair[1]));
 					
 						PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
-						output.printf("Transaction Request: BLAHHH \n");
+						output.printf("Transaction Request:%s:%s\n", "James", "Chase");
 						System.out.println("sent request");
 						
 						// Wait for out chosen neighbor to respond back
@@ -208,13 +208,13 @@ public class Peer
 
 							if(response != null)
 							{
-								if(response == "true")
+								if(response.equals("true"))
 								{
 									System.out.println("Received true");
 									// Increment atomic integer for true validation
 									validationVotesTrue.incrementAndGet();
 								}
-								else if(response == "false")
+								else if(response.equals("false"))
 								{
 									System.out.println("Received false");
 									// Increment atomic integer for false validation
