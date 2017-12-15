@@ -9,7 +9,6 @@ public class PeerDriver
 		try
 		{
 			ip = InetAddress.getLocalHost();
-			System.out.println(ip.getHostAddress());
 
 			Peer me = new Peer(ip.getHostAddress(), 5000);
 		}

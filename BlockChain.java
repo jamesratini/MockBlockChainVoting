@@ -1,5 +1,8 @@
 import java.util.*;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9c88c3f2a8b29d4b1d0bab4e336aa545f309453c
 public class BlockChain 
 {
 	private LinkedList<Block> chain;
