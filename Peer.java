@@ -274,7 +274,7 @@ public class Peer
 			}
 			if(neighborServerList.size() != 0)
 			{
-				//neighborIntroduction();
+				neighborIntroduction();
 			}
 		}
 		catch(Exception ex)
@@ -304,7 +304,7 @@ public class Peer
 						String[] myPair = splitNeighbor;
 						Socket connectingNeighbor = new Socket(myPair[0], Integer.parseInt(myPair[1]));
 						PrintWriter output = new PrintWriter(connectingNeighbor.getOutputStream(), true);
-						output.println("Introduction: Hello, I'm PUBLIC_KEY and I have REMAINING_VOTES votes to use");
+						output.printf("Introduction: Hello, I'm %s and I have REMAINING_VOTES votes to use", ipAddress);
 						connectingNeighbor.close();
 					}
 					catch(Exception ex)
