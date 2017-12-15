@@ -11,6 +11,11 @@ public class PeerDriver
 			ip = InetAddress.getLocalHost();
 
 			Peer me = new Peer(ip.getHostAddress(), 5000);
+
+			if(System.in.read() == 'x')
+			{
+				me.sendTransactionRequest("James", "Chase");
+			}
 		}
 		catch(Exception ex)
 		{

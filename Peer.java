@@ -38,7 +38,14 @@ public class Peer
 		// Initialize Ledger and Public Record
 		try{
 			initialConnect();
-			openServer();
+			new Thread()
+			{
+				public void run()
+				{
+					openServer();
+				}
+			}.start();
+			
 		}
 		catch(IOException e) {
 
@@ -69,7 +76,8 @@ public class Peer
 			System.out.println("Waiting for connection on port: " + serverPort);
 
 			//keep the server up and running
-			while(true) {
+			while(true) 
+			{
 				//wait for a connection
 				//once we have a connection we will complete the rest of the code
 
@@ -168,7 +176,7 @@ public class Peer
 	{
 		// Iterate through neighbors (everyone) and send the transaction request
 		// Server aspect will listen to neighbors evaluations, if 
-
+		System.out.println("In STR");
 		ThreadGroup allThreads = new ThreadGroup("Transaction Request Threads");
 		for(int i = 0; i < neighborServerList.size(); i++)
 		{
@@ -181,6 +189,7 @@ public class Peer
 				{
 					try
 					{
+						System.out.println("Made new thread");
 						String[] myPair = splitPair;			
 						
 						// Send out the transaction request info
@@ -199,11 +208,13 @@ public class Peer
 							{
 								if(response == "true")
 								{
+									System.out.println("Received true");
 									// Increment atomic integer for true validation
 									validationVotesTrue.incrementAndGet();
 								}
 								else if(response == "false")
 								{
+									System.out.println("Received false");
 									// Increment atomic integer for false validation
 									validationVotesFalse.incrementAndGet();
 								}
