@@ -342,7 +342,9 @@ public class Peer
 		
 		for(String neighbor : neighborServerList)
 		{
+			System.out.printf("Saying hi to: %s \n", neighbor);
 			String[] splitNeighbor = neighbor.split(":");
+			System.out.println("blah " + neighbor);
 			// Send an intro message
 			// TODO: This message will contain all of this peers info that other peers need to know, public key and remaining votes
 			// TODO: Servers will handle this differently than receiving a transactionRequest, I think
