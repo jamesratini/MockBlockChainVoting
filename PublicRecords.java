@@ -8,6 +8,8 @@ public class PublicRecords
 	public PublicRecords()
 	{
 		records = new HashMap<String, Integer>();
+		records.put("James", 1);
+		records.put("Chase", 1);
 	}
 
 	public boolean contains(String key)
