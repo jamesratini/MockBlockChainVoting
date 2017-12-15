@@ -64,18 +64,7 @@ public class AnchorNode
 
 				Node newNeighbor = new Node(clientIP, clientPort);
 
-
-				for(Node node : allNodes) {
-					//add the node to the array list
-					if(!node.getIP().equals(clientIP) && node.getPort() != clientPort)
-					{
-						allNodes.add(newNeighbor);
-					}
-				}
-				//if it is empty
-				if(allNodes.size() == 0) {
-					allNodes.add(newNeighbor);
-				}
+				allNodes.add(newNeighbor);
 
 			}
 		}
