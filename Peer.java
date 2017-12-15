@@ -230,7 +230,7 @@ public class Peer
 			BufferedReader in = new BufferedReader(new InputStreamReader(anchorSocket.getInputStream()));
 			output.println("Initial Connect");
 
-			output.println(8082);
+			output.println(5000);
 			
 			String neighborNodes;
 			while(true)
@@ -296,10 +296,7 @@ public class Peer
 			// TODO: This message will contain all of this peers info that other peers need to know, public key and remaining votes
 			// TODO: Servers will handle this differently than receiving a transactionRequest, I think
 
-			new Thread()
-			{
-				public void run()
-				{
+			
 					try
 					{
 						String[] myPair = splitNeighbor;
@@ -312,13 +309,10 @@ public class Peer
 					{
 						ex.printStackTrace();
 					}
-				}
-			}.start();
+			
 
 
 		}
-
-		// Once all threads have returned, evaluate transaction success
 	}
 
 
