@@ -133,6 +133,7 @@ public class Peer
 
 			String[] split = message.split(":");
 			PrintWriter output = new PrintWriter(connection.getOutputStream(), true);
+			System.out.printf("Transaction Request FROM %s TO %s", split[1], split[2]);
 
 			if(evaluateTransaction(split[1], split[2]))
 			{
@@ -156,6 +157,7 @@ public class Peer
 			// Add the new neighbor
 			System.out.printf("new neighbor: %s \n", message);
 			String[] splitMsg = message.split(":");
+			System.out.println(splitMsg[1] + " " + splitMsg[2]);
 			neighborServerList.add(splitMsg[1] + ":" + splitMsg[2]);
 			
 			for(int i = 0; i < neighborServerList.size(); i++)
