@@ -100,6 +100,7 @@ public class Peer
 		// If evaluation is bad - send false back to sending server
 		if(publicRecords.contains(senderKey) && publicRecords.contains(receiverKey) && publicRecords.hasVote(senderKey))
 		{
+			System.out.printf("%s voting for %s is valid \n", senderKey, receiverKey);
 			retVal = true;
 		}
 
