@@ -153,6 +153,7 @@ public class Peer
 			//System.out.println(message);
 
 			// Add the new neighbor
+			System.out.printf("new neighbor: %s \n", message);
 			String[] splitMsg = message.split(":");
 			neighborServerList.add(splitMsg[1]);
 			
@@ -188,7 +189,7 @@ public class Peer
 		for(int i = 0; i < neighborServerList.size(); i++)
 		{
 			String[] splitPair = neighborServerList.get(i).split(":");
-
+			System.out.printf("Sending transaction request to: %s", neighborServerList.get(i));
 			// Start a new thread to handle the selected neighbor. This thread will remain active until it receives a response from its neighbor. It will then increment a thread safe variable
 			try
 			{
