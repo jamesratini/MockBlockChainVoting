@@ -198,7 +198,7 @@ public class Peer
 				}
 				else
 				{
-					chain.add(new Block(chain.previousBlockHash, ledger));
+					chain.add(new Block(chain.getPreviousHash(), ledger));
 					ledger.clean();
 				}
 				
