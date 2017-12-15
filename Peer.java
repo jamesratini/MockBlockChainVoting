@@ -101,6 +101,7 @@ public class Peer
 		// If evaluation is bad - send false back to sending server
 		if(publicRecords.contains(senderKey) && publicRecords.contains(receiverKey) && publicRecords.hasVote(senderKey))
 		{
+			System.out.println("evaluated true");
 			retVal = true;
 		}
 
@@ -108,6 +109,7 @@ public class Peer
 	}
 	private void processMessage(Socket connection) throws IOException
 	{
+		System.out.println("in process message");
 		//let them know we connected
 		//System.out.printf("Connected to %s", connection.getInetAddress().getHostAddress());
 		//grab the input from the client
@@ -153,7 +155,7 @@ public class Peer
 			// Add the new neighbor
 			String[] splitMsg = message.split(":");
 			neighborServerList.add(splitMsg[1]);
-
+			
 			for(int i = 0; i < neighborServerList.size(); i++)
 			{
 				System.out.println(neighborServerList.get(i));
@@ -173,7 +175,7 @@ public class Peer
 
 			// If the Ledger now contains 10 transactions, make a new block
 			// newBlock()
-			
+
 		}
 		connection.close();
 	}
@@ -190,6 +192,7 @@ public class Peer
 			// Start a new thread to handle the selected neighbor. This thread will remain active until it receives a response from its neighbor. It will then increment a thread safe variable
 			try
 			{
+				System.out.println("in transaction Request");
 				String[] myPair = splitPair;			
 				
 				// Send out the transaction request info
@@ -198,7 +201,7 @@ public class Peer
 			
 				PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
 				output.printf("Transaction Request:%s:%s\n", "James", "Chase");
-				
+				System.out.println("sent request");
 				// Wait for out chosen neighbor to respond back
 				BufferedReader in = new BufferedReader(new InputStreamReader(neighbor.getInputStream()));
 				while(true)
