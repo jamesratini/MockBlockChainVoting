@@ -15,11 +15,13 @@ public class Peer
 	private int peerId;
 	private AtomicInteger validationVotesTrue;
 	private AtomicInteger validationVotesFalse;
+	private Ledger ledger;
 	private String ipAddress;
 	private int serverPort;
 	private Client client;
 	private PublicRecords publicRecords;
 	private static ArrayList<String> neighborServerList; // Contains the IP/Port pair of neighbors
+	private BlockChain chain;
 
 	//private Server server; 
 
@@ -31,9 +33,11 @@ public class Peer
 		ipAddress = ip;
 		serverPort = port;
 		neighborServerList = new ArrayList<String>();
+		chain = new BlockChain();
 		publicRecords = new PublicRecords();
 		validationVotesTrue = new AtomicInteger(0);
 		validationVotesFalse = new AtomicInteger(0);
+		ledger = new Ledger();
 
 		// Initialize Ledger and Public Record
 		try{
@@ -61,6 +65,8 @@ public class Peer
 		// Check if size == 10
 			// true - Create new Block
 			// false - return
+
+		ledger.addTransaction(new Transaction(sender, receiver));
 	}
 
 	// ------ SERVER ------
@@ -175,10 +181,29 @@ public class Peer
 
 			//Proof of concept. We're so tired
 			// Split message into sender and receiver
-			// Ledger.add(new Transaction(sender, receiver))
+			String[] split = message.split(":");
 
-			// If the Ledger now contains 10 transactions, make a new block
-			// newBlock()
+			// Ledger.add(new Transaction(sender, receiver))
+			addTransaction(split[1],split[2]);
+
+			
+			if(ledger.isFull())
+			{
+				// If the Ledger now contains 10 transactions, make a new block
+				if(chain.size() == 0)
+				{
+					// Genesis block
+					chain.add(new Block("0", ledger));
+					ledger.clean();
+				}
+				else
+				{
+					chain.add(new Block(chain.previousBlockHash, ledger));
+					ledger.clean();
+				}
+				
+
+			}
 
 		}
 		connection.close();

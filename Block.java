@@ -9,7 +9,7 @@ public class Block
 	private Ledger ledger;
 	
 	
-	public Block(String previousBlock)
+	public Block(String previousBlock, Ledger transactions)
 	{
 		ledger = new Ledger();
 		hash = getHash();

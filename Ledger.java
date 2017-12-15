@@ -16,6 +16,10 @@ public class Ledger
 			transactions[transactions.length] = newTransaction;
 		}
 	}
+	public void clean()
+	{
+		transactions = new Transaction[10];
+	}
 	public boolean isFull()
 	{
 		if(transactions.length < 10)
