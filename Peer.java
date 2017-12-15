@@ -140,11 +140,16 @@ public class Peer
 			// Add new neighbor info to my neighbors
 
 			// Current introduction message contains no useful info. For POC purposes, it doesn't need to
-			System.out.println(message);
+			//System.out.println(message);
 
 			// Add the new neighbor
 			String[] splitMsg = message.split(":");
 			neighborServerList.add(splitMsg[1]);
+
+			for(int i = 0; i < neighborServerList.size(); i++)
+			{
+				System.out.println(neighborServerList.get(i));
+			}
 
 
 		}
