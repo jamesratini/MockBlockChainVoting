@@ -266,9 +266,7 @@ public class Peer
 				}
 
 			}
-			if(neighborServerList.size() == 0) {
-				System.out.println("empty");
-			}
+
 			// Introduce yourself to your new neighbors!
 			for(int i = 0; i < neighborServerList.size(); i++)
 			{
