@@ -89,11 +89,15 @@ public class AnchorNode
 		}
 		//else then there is atleast one other out there
 		else {
-			for(Node n : allNodes) {					
+			for(Node n : allNodes) {
+				if(!n.getIP().equals(ip) && n.getPort() != port)
+				{
 					returnString += n.getIP();
 					returnString += ":";
 					returnString += Integer.toString(n.getPort());
 					returnString += "/";
+				}					
+					
 			}
 
 
