@@ -141,7 +141,7 @@ public class Peer
 
 			if(evaluateTransaction(split[1], split[2]))
 			{
-				output.printf("true"); 
+				output.printf("true");
 			}
 			else
 			{
