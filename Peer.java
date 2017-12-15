@@ -38,10 +38,12 @@ public class Peer
 		// Initialize Ledger and Public Record
 		try{
 			initialConnect();
+			System.out.println("returned from initialConnect");
 			new Thread()
 			{
 				public void run()
 				{
+					System.out.println("Made server thread");
 					openServer();
 				}
 			}.start();
@@ -82,7 +84,6 @@ public class Peer
 				//once we have a connection we will complete the rest of the code
 
 				// Run as a thread so we can accept multiple connections
-				
 				processMessage(server.accept());
 				
 			}
@@ -184,26 +185,24 @@ public class Peer
 		// Iterate through neighbors (everyone) and send the transaction request
 		// Server aspect will listen to neighbors evaluations, if 
 		System.out.println("In STR");
-		ThreadGroup allThreads = new ThreadGroup("Transaction Request Threads");
+
 		for(int i = 0; i < neighborServerList.size(); i++)
 		{
 			String[] splitPair = neighborServerList.get(i).split(":");
 
 			// Start a new thread to handle the selected neighbor. This thread will remain active until it receives a response from its neighbor. It will then increment a thread safe variable
-			new Thread(allThreads, "name?")
-			{
-				public void run()
-				{
-					try
+			try
 					{
 						System.out.println("Made new thread");
 						String[] myPair = splitPair;			
 						
 						// Send out the transaction request info
+						System.out.printf("%s %d", myPair[0], Integer.parseInt(myPair[1]));
 						Socket neighbor = new Socket(myPair[0], Integer.parseInt(myPair[1]));
 					
 						PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
-						output.printf("Transaction Request:%s:%s", myPublicKey, receiver);
+						output.printf("Transaction Request: WHAT THE FUCK IS UP IM HORNY AND SUICIDAL");
+						System.out.println("sent request");
 						
 						// Wait for out chosen neighbor to respond back
 						BufferedReader in = new BufferedReader(new InputStreamReader(neighbor.getInputStream()));
@@ -229,6 +228,7 @@ public class Peer
 								break;
 							}
 						}
+						
 						neighbor.close();
 					}
 					catch(Exception ex)
@@ -236,8 +236,7 @@ public class Peer
 						ex.printStackTrace();
 					}
 					// DO THREADS CLEANLY KILL THEMSELVES????
-				}	
-			}.start();
+			
 			
 			// Wait for all threads to finish
 			// Tally the votes
