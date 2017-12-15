@@ -103,6 +103,9 @@ public class Peer
 			System.out.printf("%s voting for %s is valid \n", senderKey, receiverKey);
 			retVal = true;
 		}
+		else {
+			System.out.println("SHOULDNT BE IN HERE FUCKTARD");
+		}
 
 		return retVal;
 	}
@@ -110,24 +113,27 @@ public class Peer
 	{
 		//let them know we connected
 		//System.out.printf("Connected to %s", connection.getInetAddress().getHostAddress());
-
+		System.out.println("something");
 		//grab the input from the client
 		InputStream is = connection.getInputStream();
 		InputStreamReader isr = new InputStreamReader(is);
+		System.out.println("something also");
 
 		//create a buffer to read through message
 		BufferedReader buffer = new BufferedReader(isr);
+		System.out.println("something even");
 
 		//grab the message from the buffer
 		String message = buffer.readLine();
 		// Will take a different branch for all possible outcomes
 
-		
+		System.out.println(message);
 		if(message.contains("Transaction Request"))
 		{
 			// TransactionRequest
 			// Evaluate
 			// Respond with our evaluation of the request
+			System.out.println("fucke me up dawg");
 
 			String[] split = message.split(":");
 			PrintWriter output = new PrintWriter(connection.getOutputStream(), true);
