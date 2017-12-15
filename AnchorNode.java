@@ -57,7 +57,6 @@ public class AnchorNode
 				System.out.println("CLINT CONNECTION INFO:  " + clientIP + " " + clientPort);
 
 				String neighborString = getNeighborInfo(clientPort, clientIP);
-				System.out.println("neighbor string:   " + neighborString);
 				PrintWriter output = new PrintWriter(initialConnectNode.getOutputStream(), true);
 				output.println(neighborString);
 
@@ -90,10 +89,7 @@ public class AnchorNode
 		}
 		//else then there is atleast one other out there
 		else {
-			for(Node n : allNodes) {
-				System.out.println("I AM IN HERE DUMBASS FUCKTARD" );
-
-					
+			for(Node n : allNodes) {					
 					returnString += n.getIP();
 					returnString += ":";
 					returnString += Integer.toString(n.getPort());
@@ -102,7 +98,6 @@ public class AnchorNode
 
 
 		}
-		System.out.println("RETURN STRING:    " + returnString);
 		return returnString;
 	}
 
