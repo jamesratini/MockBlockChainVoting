@@ -127,7 +127,7 @@ public class Peer
 		//grab the message from the buffer
 		String message = buffer.readLine();
 		// Will take a different branch for all possible outcomes
-
+		//S
 		System.out.println(message);
 		if(message.contains("Transaction Request"))
 		{
