@@ -100,7 +100,7 @@ public class Peer
 	private void processMessage(Socket connection) throws IOException
 	{
 		//let them know we connected
-		System.out.printf("Connected to %s", connection.getInetAddress().getHostAddress());
+		//System.out.printf("Connected to %s", connection.getInetAddress().getHostAddress());
 
 		//grab the input from the client
 		InputStream is = connection.getInputStream();
@@ -307,7 +307,10 @@ public class Peer
 			// TODO: This message will contain all of this peers info that other peers need to know, public key and remaining votes
 			// TODO: Servers will handle this differently than receiving a transactionRequest, I think
 
-			
+			new Thread()
+			{
+				public void run()
+				{
 					try
 					{
 						String[] myPair = splitNeighbor;
@@ -320,6 +323,10 @@ public class Peer
 					{
 						ex.printStackTrace();
 					}
+				}
+			}.start();
+			
+					
 			
 
 
