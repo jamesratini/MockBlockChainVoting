@@ -38,6 +38,7 @@ public class Peer
 		// Initialize Ledger and Public Record
 		try{
 			initialConnect();
+			openServer();
 		}
 		catch(IOException e) {
 
