@@ -23,7 +23,7 @@ public class Peer
 
 	//private Server server; 
 
-	public Peer(String ip, int port)
+	public Peer(String ip, int port) throws IOException
 	{
 		// Assign important information about the peer
 		// This information is used by other peers to identify this peer
@@ -36,7 +36,12 @@ public class Peer
 		validationVotesFalse = new AtomicInteger(0);
 
 		// Initialize Ledger and Public Record
-		//initialConnect();
+		try{
+			initialConnect();
+		}
+		catch(IOException e) {
+
+		}
 	}
 
 	// PEER
@@ -261,7 +266,7 @@ public class Peer
 				}
 
 			}
-
+			
 			// Introduce yourself to your new neighbors!
 			for(int i = 0; i < neighborServerList.size(); i++)
 			{

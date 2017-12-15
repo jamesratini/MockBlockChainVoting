@@ -40,10 +40,12 @@ public class AnchorNode
 		{
 			while(true)
 			{
-				
+				InetAddress ip;
+				ip = InetAddress.getLocalHost();
 				System.out.println("listening on port 8081");
+				System.out.println("IP address: " + ip.getHostAddress() + "\n\n\n\n\n\n");
 				Socket initialConnectNode = anchorSocket.accept();
-				System.out.println("CONNECTED TO CLIENT\n\n\n\n\n\n\n\n\n\n");
+				System.out.println("CONNECTED TO CLIENT");
 				
 				BufferedReader in = new BufferedReader(new InputStreamReader(initialConnectNode.getInputStream()));
 				String clientMessage = in.readLine();
@@ -52,12 +54,22 @@ public class AnchorNode
 				//now add this client to the array list
 				int clientPort = Integer.parseInt(in.readLine());
 				String clientIP = initialConnectNode.getInetAddress().getHostAddress();
-
+				System.out.println("CLINT CONNECTION INFO:  " + clientIP + " " + clientPort);
 
 				String neighborString = getNeighborInfo(clientPort, clientIP);
+				System.out.println("neighbor string:   " + neighborString);
 				PrintWriter output = new PrintWriter(initialConnectNode.getOutputStream(), true);
 				output.println(neighborString);
 
+
+				//add the node to the array list
+				Node newNeighbor = new Node(clientIP, clientPort);
+				allNodes.add(newNeighbor);
+
+
+				for(Node node : allNodes) {
+					System.out.println(node.getIP());
+				}
 			}
 		}
 		finally
@@ -75,10 +87,6 @@ public class AnchorNode
 		//if the peer is the first one to connect on the network
 		if(allNodes.size() == 0) {
 			returnString = "no peers on network, please wait for connections";
-
-			//add the node to the array list
-			Node newNeighbor = new Node(ip, port);
-			allNodes.add(newNeighbor);
 		}
 		//else then there is atleast one other out there
 		else {
@@ -88,9 +96,9 @@ public class AnchorNode
 				//check whether or not the current node is in the array list
 				if(n.getIP() != ip && n.getPort() != port) {
 					returnString += n.getIP();
-				returnString += ":";
-				returnString += Integer.toString(n.getPort());
-				returnString += "/";
+					returnString += ":";
+					returnString += Integer.toString(n.getPort());
+					returnString += "/";
 				}
 				//if it is found in the network array list
 				else {
@@ -106,8 +114,8 @@ public class AnchorNode
 			}
 
 
-			//ArrayList<Node> neighbors = findBestNeighbors();
 		}
+		System.out.println("RETURN STRING:    " + returnString);
 		return returnString;
 	}
 
