@@ -141,6 +141,12 @@ public class Peer
 
 			// Current introduction message contains no useful info. For POC purposes, it doesn't need to
 			System.out.println(message);
+
+			// Add the new neighbor
+			String[] splitMsg = message.split(":");
+			neighborServerList.add(splitMsg[1]);
+
+
 		}
 	
 		else if(message.contains("Approved Transaction"))
@@ -302,7 +308,7 @@ public class Peer
 						String[] myPair = splitNeighbor;
 						Socket connectingNeighbor = new Socket(myPair[0], Integer.parseInt(myPair[1]));
 						PrintWriter output = new PrintWriter(connectingNeighbor.getOutputStream(), true);
-						output.printf("Introduction: Hello, I'm %s and I have REMAINING_VOTES votes to use", ipAddress);
+						output.printf("Introduction: %s%d", ipAddress, serverPort);
 						connectingNeighbor.close();
 					}
 					catch(Exception ex)
