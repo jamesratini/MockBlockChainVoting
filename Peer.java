@@ -358,7 +358,7 @@ public class Peer
 						String[] myPair = splitNeighbor;
 						Socket connectingNeighbor = new Socket(myPair[0], Integer.parseInt(myPair[1]));
 						PrintWriter output = new PrintWriter(connectingNeighbor.getOutputStream(), true);
-						output.printf("Introduction: %s%d", ipAddress, serverPort);
+						output.printf("Introduction:%s:%d", ipAddress, serverPort);
 						connectingNeighbor.close();
 					}
 					catch(Exception ex)
