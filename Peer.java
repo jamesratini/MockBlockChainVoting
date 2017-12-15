@@ -114,15 +114,12 @@ public class Peer
 	{
 		//let them know we connected
 		//System.out.printf("Connected to %s", connection.getInetAddress().getHostAddress());
-		System.out.println("something");
 		//grab the input from the client
 		InputStream is = connection.getInputStream();
 		InputStreamReader isr = new InputStreamReader(is);
-		System.out.println("something also");
 
 		//create a buffer to read through message
 		BufferedReader buffer = new BufferedReader(isr);
-		System.out.println("something even");
 
 		//grab the message from the buffer
 		String message = buffer.readLine();
@@ -134,18 +131,17 @@ public class Peer
 			// TransactionRequest
 			// Evaluate
 			// Respond with our evaluation of the request
-			System.out.println("fucke me up dawg");
 
 			String[] split = message.split(":");
 			PrintWriter output = new PrintWriter(connection.getOutputStream(), true);
 
 			if(evaluateTransaction(split[1], split[2]))
 			{
-				output.printf("true");
+				output.printf("true\n");
 			}
 			else
 			{
-				output.printf("false");
+				output.printf("false\n");
 			}
 
 
@@ -176,7 +172,6 @@ public class Peer
 			// Add Transaction
 			// Keep tally, can't add until all nodes verify it is a successful transaction
 		}
-		buffer.reset();
 		connection.close();
 	}
 
