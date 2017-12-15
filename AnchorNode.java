@@ -54,25 +54,29 @@ public class AnchorNode
 				//now add this client to the array list
 				int clientPort = Integer.parseInt(in.readLine());
 				String clientIP = initialConnectNode.getInetAddress().getHostAddress();
-				System.out.println("CLINT CONNECTION INFO:  " + clientIP + " " + clientPort);
+				System.out.println("CLIENT CONNECTION INFO:  " + clientIP + " " + clientPort);
 
 				String neighborString = getNeighborInfo(clientPort, clientIP);
+				System.out.println("SENDING:       " + neighborString);
 				PrintWriter output = new PrintWriter(initialConnectNode.getOutputStream(), true);
 				output.println(neighborString);
 
 
 				Node newNeighbor = new Node(clientIP, clientPort);
 
-				
 
 				for(Node node : allNodes) {
-					System.out.println(node.getIP());
 					//add the node to the array list
 					if(!node.getIP().equals(clientIP) && node.getPort() != clientPort)
 					{
 						allNodes.add(newNeighbor);
 					}
 				}
+				//if it is empty
+				if(allNodes.size() == 0) {
+					allNodes.add(newNeighbor);
+				}
+
 			}
 		}
 		finally
@@ -94,7 +98,9 @@ public class AnchorNode
 		//else then there is atleast one other out there
 		else {
 			for(Node n : allNodes) {
-				if(!n.getIP().equals(ip) && n.getPort() != port)
+				System.out.println("new port: " + port + " checking: " + Integer.toString(n.getPort()));
+				System.out.println("new ip: " + ip + " checking: " + n.getIP());
+				if(!n.getIP().equals(ip))
 				{
 					returnString += n.getIP();
 					returnString += ":";
