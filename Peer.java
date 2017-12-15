@@ -36,24 +36,12 @@ public class Peer
 		validationVotesFalse = new AtomicInteger(0);
 
 		// Initialize Ledger and Public Record
-<<<<<<< HEAD
 		try{
 			initialConnect();
 		}
 		catch(IOException e) {
 
 		}
-=======
-		try
-		{
-			initialConnect();
-		}
-		catch(Exception ex)
-		{
-
-		}
-		
->>>>>>> 9c88c3f2a8b29d4b1d0bab4e336aa545f309453c
 	}
 
 	// PEER
@@ -242,7 +230,7 @@ public class Peer
 			output.println("Initial Connect");
 
 			output.println(8082);
-			System.out.println("Attempted anchor connect");
+			
 			String neighborNodes;
 			while(true)
 			{
@@ -278,7 +266,9 @@ public class Peer
 				}
 
 			}
-			
+			if(neighborServerList.size() == 0) {
+				System.out.println("empty");
+			}
 			// Introduce yourself to your new neighbors!
 			for(int i = 0; i < neighborServerList.size(); i++)
 			{

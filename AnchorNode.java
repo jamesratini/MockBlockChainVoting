@@ -90,27 +90,14 @@ public class AnchorNode
 		}
 		//else then there is atleast one other out there
 		else {
-			boolean isOnNetwork = false;
-
 			for(Node n : allNodes) {
-				//check whether or not the current node is in the array list
-				if(n.getIP() != ip && n.getPort() != port) {
+				System.out.println("I AM IN HERE DUMBASS FUCKTARD" );
+
+					
 					returnString += n.getIP();
 					returnString += ":";
 					returnString += Integer.toString(n.getPort());
 					returnString += "/";
-				}
-				//if it is found in the network array list
-				else {
-					isOnNetwork = true;
-				}
-			}
-
-			//if is on network is still false, then add the neighbor
-			if(isOnNetwork == false) {
-				//add the node to the array list
-				Node newNeighbor = new Node(ip, port);
-				allNodes.add(newNeighbor);
 			}
 
 
