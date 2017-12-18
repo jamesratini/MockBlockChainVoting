@@ -22,6 +22,7 @@ public class Peer
 	private PublicRecords publicRecords;
 	private static ArrayList<String> neighborServerList; // Contains the IP/Port pair of neighbors
 	private BlockChain chain;
+	private int voteCount;
 
 	//private Server server; 
 
@@ -30,6 +31,7 @@ public class Peer
 		// Assign important information about the peer
 		// This information is used by other peers to identify this peer
 		//peerId = id;
+		voteCount = 0;
 		ipAddress = ip;
 		serverPort = port;
 		neighborServerList = new ArrayList<String>();
@@ -105,12 +107,13 @@ public class Peer
 		// Check if the publicKey has any remaining votes
 		// If evaluation is good - send true back to sending server
 		// If evaluation is bad - send false back to sending server
+
 		if(publicRecords.contains(senderKey) && publicRecords.contains(receiverKey) && publicRecords.hasVote(senderKey))
 		{
-			System.out.println("evaluated true");
+			//voteCount++;
+			System.out.println("    evaluated true");
 			retVal = true;
 		}
-
 		return retVal;
 	}
 	private void processMessage(Socket connection) throws IOException
@@ -140,6 +143,10 @@ public class Peer
 			String[] split = message.split(":");
 			PrintWriter output = new PrintWriter(connection.getOutputStream(), true);
 			System.out.printf("Transaction Request FROM %s TO %s", split[1], split[2]);
+
+			voteCount++;
+			System.out.println("\n\ncurrent votes for you: " + voteCount);
+
 
 			if(evaluateTransaction(split[1], split[2]))
 			{
@@ -271,6 +278,8 @@ public class Peer
 			// Tally the votes
 		} 	
 	}
+
+
 	private void sendValidTransaction(String sender, String receiver)
 	{
 		for(String neighbor : neighborServerList)
