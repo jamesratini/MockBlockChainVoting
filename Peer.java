@@ -15,28 +15,49 @@ public class Peer
 	private int peerId;
 	private AtomicInteger validationVotesTrue;
 	private AtomicInteger validationVotesFalse;
+	private Ledger ledger;
 	private String ipAddress;
 	private int serverPort;
 	private Client client;
 	private PublicRecords publicRecords;
 	private static ArrayList<String> neighborServerList; // Contains the IP/Port pair of neighbors
+	private BlockChain chain;
+	private int voteCount;
 
 	//private Server server; 
 
-	public Peer(int id, String ip, int port)
+	public Peer(String ip, int port) throws IOException
 	{
 		// Assign important information about the peer
 		// This information is used by other peers to identify this peer
-		peerId = id;
+		//peerId = id;
+		voteCount = 0;
 		ipAddress = ip;
 		serverPort = port;
 		neighborServerList = new ArrayList<String>();
+		chain = new BlockChain();
 		publicRecords = new PublicRecords();
 		validationVotesTrue = new AtomicInteger(0);
 		validationVotesFalse = new AtomicInteger(0);
+		ledger = new Ledger();
 
 		// Initialize Ledger and Public Record
-		//initialConnect();
+		try{
+			initialConnect();
+			System.out.println("returned from initialConnect");
+			new Thread()
+			{
+				public void run()
+				{
+					System.out.println("Made server thread");
+					openServer();
+				}
+			}.start();
+			
+		}
+		catch(IOException e) {
+
+		}
 	}
 
 	// PEER
@@ -46,6 +67,8 @@ public class Peer
 		// Check if size == 10
 			// true - Create new Block
 			// false - return
+
+		ledger.addTransaction(new Transaction(sender, receiver));
 	}
 
 	// ------ SERVER ------
@@ -63,12 +86,12 @@ public class Peer
 			System.out.println("Waiting for connection on port: " + serverPort);
 
 			//keep the server up and running
-			while(true) {
+			while(true) 
+			{
 				//wait for a connection
 				//once we have a connection we will complete the rest of the code
 
 				// Run as a thread so we can accept multiple connections
-				
 				processMessage(server.accept());
 				
 			}
@@ -84,18 +107,20 @@ public class Peer
 		// Check if the publicKey has any remaining votes
 		// If evaluation is good - send true back to sending server
 		// If evaluation is bad - send false back to sending server
+
 		if(publicRecords.contains(senderKey) && publicRecords.contains(receiverKey) && publicRecords.hasVote(senderKey))
 		{
+			//voteCount++;
+			System.out.println("    evaluated true");
 			retVal = true;
 		}
-
 		return retVal;
 	}
 	private void processMessage(Socket connection) throws IOException
 	{
+		System.out.println("in process message");
 		//let them know we connected
-		System.out.printf("Connected to %s", connection.getInetAddress().getHostAddress());
-
+		//System.out.printf("Connected to %s", connection.getInetAddress().getHostAddress());
 		//grab the input from the client
 		InputStream is = connection.getInputStream();
 		InputStreamReader isr = new InputStreamReader(is);
@@ -106,24 +131,30 @@ public class Peer
 		//grab the message from the buffer
 		String message = buffer.readLine();
 		// Will take a different branch for all possible outcomes
-
-		
+		//S
+		System.out.println(message);
 		if(message.contains("Transaction Request"))
 		{
 			// TransactionRequest
 			// Evaluate
 			// Respond with our evaluation of the request
 
+
 			String[] split = message.split(":");
 			PrintWriter output = new PrintWriter(connection.getOutputStream(), true);
+			System.out.printf("Transaction Request FROM %s TO %s", split[1], split[2]);
+
+			voteCount++;
+			System.out.println("\n\ncurrent votes for you: " + voteCount);
+
 
 			if(evaluateTransaction(split[1], split[2]))
 			{
-				output.printf("true");
+				output.printf("true\n");
 			}
 			else
 			{
-				output.printf("false");
+				output.printf("false\n");
 			}
 
 
@@ -134,16 +165,54 @@ public class Peer
 			// Add new neighbor info to my neighbors
 
 			// Current introduction message contains no useful info. For POC purposes, it doesn't need to
-			System.out.println(message);
+			//System.out.println(message);
+
+			// Add the new neighbor
+			System.out.printf("new neighbor: %s \n", message);
+			String[] splitMsg = message.split(":");
+			System.out.println(splitMsg[1] + " " + splitMsg[2]);
+			neighborServerList.add(splitMsg[1] + ":" + splitMsg[2]);
+			
+			for(int i = 0; i < neighborServerList.size(); i++)
+			{
+				System.out.println(neighborServerList.get(i));
+			}
+
+
 		}
 	
-		else if(message.contains("Approved Transaction"))
+		else if(message.contains("Valid Transaction"))
 		{
 			// Valid Transaction Request
 			// Add Transaction
-			// Keep tally, can't add until all nodes verify it is a successful transaction
-		}
 
+			//Proof of concept. We're so tired
+			// Split message into sender and receiver
+			String[] split = message.split(":");
+
+			// Ledger.add(new Transaction(sender, receiver))
+			addTransaction(split[1],split[2]);
+
+			
+			if(ledger.isFull())
+			{
+				// If the Ledger now contains 10 transactions, make a new block
+				if(chain.size() == 0)
+				{
+					// Genesis block
+					chain.add(new Block("0", ledger));
+					ledger.clean();
+				}
+				else
+				{
+					chain.add(new Block(chain.getPreviousHash(), ledger));
+					ledger.clean();
+				}
+				
+
+			}
+
+		}
 		connection.close();
 	}
 
@@ -152,61 +221,86 @@ public class Peer
 		// Iterate through neighbors (everyone) and send the transaction request
 		// Server aspect will listen to neighbors evaluations, if 
 
-		ThreadGroup allThreads = new ThreadGroup("Transaction Request Threads");
 		for(int i = 0; i < neighborServerList.size(); i++)
 		{
 			String[] splitPair = neighborServerList.get(i).split(":");
-
+			System.out.printf("Sending transaction request to: %s", neighborServerList.get(i));
 			// Start a new thread to handle the selected neighbor. This thread will remain active until it receives a response from its neighbor. It will then increment a thread safe variable
-			new Thread(allThreads, "name?")
+			try
 			{
-				public void run()
+				System.out.println("in transaction Request");
+				String[] myPair = splitPair;			
+				
+				// Send out the transaction request info
+				System.out.printf("%s %d", myPair[0], Integer.parseInt(myPair[1]));
+				Socket neighbor = new Socket(myPair[0], Integer.parseInt(myPair[1]));
+			
+				PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
+				output.printf("Transaction Request:%s:%s\n", "James", "Chase");
+				System.out.println("sent request");
+				// Wait for out chosen neighbor to respond back
+				BufferedReader in = new BufferedReader(new InputStreamReader(neighbor.getInputStream()));
+				while(true)
 				{
-					try
+					String response = in.readLine();
+
+					if(response != null)
 					{
-						String[] myPair = splitPair;			
-						
-						// Send out the transaction request info
-						Socket neighbor = new Socket(myPair[0], Integer.parseInt(myPair[1]));
-					
-						PrintWriter output = new PrintWriter(neighbor.getOutputStream(), true);
-						output.printf("Transaction Request:%s:%s", myPublicKey, receiver);
-						
-						// Wait for out chosen neighbor to respond back
-						BufferedReader in = new BufferedReader(new InputStreamReader(neighbor.getInputStream()));
-						while(true)
+						if(response.equals("true"))
 						{
-							String response = in.readLine();
-
-							if(response != null)
-							{
-								if(response == "true")
-								{
-									// Increment atomic integer for true validation
-									validationVotesTrue.incrementAndGet();
-								}
-								else if(response == "false")
-								{
-									// Increment atomic integer for false validation
-									validationVotesFalse.incrementAndGet();
-								}
-
-								break;
-							}
+							// Increment atomic integer for true validation
+							validationVotesTrue.incrementAndGet();
 						}
-						neighbor.close();
+						else if(response.equals("false"))
+						{
+							// Increment atomic integer for false validation
+							validationVotesFalse.incrementAndGet();
+						}
+
+						break;
 					}
-					catch(Exception ex)
-					{
-						ex.printStackTrace();
-					}
+				}
+				
+				neighbor.close();
+			}
+			catch(Exception ex)
+			{
+				ex.printStackTrace();
+			}
 					// DO THREADS CLEANLY KILL THEMSELVES????
-				}	
-			}.start();
+			if(validationVotesTrue.get() == neighborServerList.size())
+			{
+				// Our transaction is valid. Let everyone know
+
+			}
 			
 			// Wait for all threads to finish
 			// Tally the votes
 		} 	
+	}
+
+
+	private void sendValidTransaction(String sender, String receiver)
+	{
+		for(String neighbor : neighborServerList)
+		{
+			String[] splitPair = neighbor.split(":");
+
+			// Start a new thread to handle the selected neighbor. This thread will remain active until it receives a response from its neighbor. It will then increment a thread safe variable
+			try
+			{
+				// Send out the transaction request info
+				System.out.printf("%s:%s", splitPair[0], splitPair[1]);
+				Socket sock = new Socket(splitPair[0], Integer.parseInt(splitPair[1]));
+			
+				PrintWriter output = new PrintWriter(sock.getOutputStream(), true);
+				output.printf("Valid Transaction:%s:%s\n", sender, receiver);
+			}
+			catch(Exception ex)
+			{
+
+			}
+		}
 	}
 
 	// DO NOT RUN AS A THREAD!!!
@@ -224,7 +318,7 @@ public class Peer
 			BufferedReader in = new BufferedReader(new InputStreamReader(anchorSocket.getInputStream()));
 			output.println("Initial Connect");
 
-			output.println(8082);
+			output.println(5000);
 			
 			String neighborNodes;
 			while(true)
@@ -263,7 +357,10 @@ public class Peer
 			}
 
 			// Introduce yourself to your new neighbors!
-			//System.out.println(neighborServerList.get(0));
+			for(int i = 0; i < neighborServerList.size(); i++)
+			{
+				System.out.println(neighborServerList.get(i));
+			}
 			if(neighborServerList.size() != 0)
 			{
 				neighborIntroduction();
@@ -282,7 +379,9 @@ public class Peer
 		
 		for(String neighbor : neighborServerList)
 		{
+			System.out.printf("Saying hi to: %s \n", neighbor);
 			String[] splitNeighbor = neighbor.split(":");
+			System.out.println("blah " + neighbor);
 			// Send an intro message
 			// TODO: This message will contain all of this peers info that other peers need to know, public key and remaining votes
 			// TODO: Servers will handle this differently than receiving a transactionRequest, I think
@@ -296,7 +395,7 @@ public class Peer
 						String[] myPair = splitNeighbor;
 						Socket connectingNeighbor = new Socket(myPair[0], Integer.parseInt(myPair[1]));
 						PrintWriter output = new PrintWriter(connectingNeighbor.getOutputStream(), true);
-						output.println("Introduction: Hello, I'm PUBLIC_KEY and I have REMAINING_VOTES votes to use");
+						output.printf("Introduction:%s:%d", ipAddress, serverPort);
 						connectingNeighbor.close();
 					}
 					catch(Exception ex)
@@ -305,11 +404,12 @@ public class Peer
 					}
 				}
 			}.start();
+			
+					
+			
 
 
 		}
-
-		// Once all threads have returned, evaluate transaction success
 	}
 
 
